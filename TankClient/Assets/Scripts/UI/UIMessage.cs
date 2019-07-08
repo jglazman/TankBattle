@@ -1,0 +1,148 @@
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.Assertions;
+
+namespace Glazman.Tank
+{
+	[Serializable]
+	public class UIMessage
+	{
+		public enum MessageType
+		{
+			Undefined = 0,
+			SplashContinue,
+			StartNewGame,
+			PauseGame,
+			QuitGame
+		}
+
+		public MessageType type;
+		public List<Datum> data;
+
+		public void Add(Datum item)
+		{
+			if (data == null)
+				data = new List<Datum>(1);
+				
+			data.Add(item);
+		}
+
+		public static UIMessage Create(MessageType type, params Datum[] items)
+		{
+			return new UIMessage {
+				type = type,
+				data = new List<Datum>(items)
+			};
+		}
+		
+		
+		[Serializable]
+		public struct Datum
+		{
+			public enum Type
+			{
+				Bool,
+				Int,
+				Float,
+				String,
+				GameObject,
+				DropdownIndex,
+				DropdownValue
+			}
+
+			public Type type;
+			
+			/// <summary>An optional value type, converted at runtime. Unused if Type is a GameObject reference.</summary>
+			[SerializeField] private string _value;
+			
+			/// <summary>An optional GameObject reference. Unused if Type is a value type.</summary>
+			[SerializeField] private GameObject _gameObject;
+
+			
+			public bool BoolValue
+			{
+				get
+				{
+					AssertType(Type.Bool, this);
+					return bool.Parse(_value);
+				}
+			}
+			
+			public int IntValue
+			{
+				get
+				{
+					AssertType(Type.Int, this);
+					return int.Parse(_value);
+				}
+			}
+
+			public float FloatValue
+			{
+				get
+				{
+					AssertType(Type.Float, this);
+					return float.Parse(_value);
+				}
+			}
+
+			public string StringValue
+			{
+				get
+				{
+					AssertType(Type.String, this);
+					return _value;
+				}
+			}
+
+			public GameObject GameObjectValue
+			{
+				get
+				{
+					AssertType(Type.GameObject, this);
+					return _gameObject;
+				}
+			}
+
+			public string DropdownValue
+			{
+				get
+				{
+					AssertType(Type.DropdownValue, this);
+					
+					if (_gameObject == null)
+						return "";
+					
+					var dropdown = _gameObject.GetComponent<Dropdown>();
+					if (dropdown == null)
+						return "";
+
+					return dropdown.options[dropdown.value].text;
+				}
+			}
+
+			public int DropdownIndex
+			{
+				get
+				{
+					AssertType(Type.DropdownIndex, this);
+					
+					if (_gameObject == null)
+						return -1;
+					
+					var dropdown = _gameObject.GetComponent<Dropdown>();
+					if (dropdown == null)
+						return -1;
+
+					return dropdown.value;
+				}
+			}
+
+			private static void AssertType(Type type, Datum item) =>
+				Assert.IsTrue(type == item.type, $"InvalidTypeException: PayloadItem has type={item.type}, but was references as {type}");
+		}
+	}
+}

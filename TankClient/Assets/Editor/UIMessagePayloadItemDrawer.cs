@@ -1,12 +1,12 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEditor;
-using UnityEngine.UI;
 
 namespace Glazman.Tank
 {
-	[CustomPropertyDrawer(typeof(UIMessage.PayloadItem))]
+	/// <summary>
+	/// A simple custom inspector to pass data from UI widgets to our game.
+	/// </summary>
+	[CustomPropertyDrawer(typeof(UIMessage.Datum))]
 	public class UIMessagePayloadItemDrawer : PropertyDrawer
 	{
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
@@ -22,12 +22,12 @@ namespace Glazman.Tank
 			valuePosition.x += typePosition.width;
 			
 			var payloadType = property.FindPropertyRelative("type");
-			payloadType.enumValueIndex = (int)(UIMessage.PayloadItem.PayloadType)EditorGUI.EnumPopup(typePosition, label, (UIMessage.PayloadItem.PayloadType)payloadType.enumValueIndex);
+			payloadType.enumValueIndex = (int)(UIMessage.Datum.Type)EditorGUI.EnumPopup(typePosition, label, (UIMessage.Datum.Type)payloadType.enumValueIndex);
 
 			var payloadValue = property.FindPropertyRelative("value");
-			switch ((UIMessage.PayloadItem.PayloadType)payloadType.enumValueIndex)
+			switch ((UIMessage.Datum.Type)payloadType.enumValueIndex)
 			{
-				case UIMessage.PayloadItem.PayloadType.Bool:
+				case UIMessage.Datum.Type.Bool:
 				{
 					bool boolValue;
 					bool.TryParse(payloadValue.stringValue, out boolValue);
@@ -35,7 +35,7 @@ namespace Glazman.Tank
 					payloadValue.stringValue = boolValue.ToString();
 				} break;
 
-				case UIMessage.PayloadItem.PayloadType.Int:
+				case UIMessage.Datum.Type.Int:
 				{
 					int intValue;
 					int.TryParse(payloadValue.stringValue, out intValue);
@@ -43,7 +43,7 @@ namespace Glazman.Tank
 					payloadValue.stringValue = intValue.ToString();
 				} break;
 				
-				case UIMessage.PayloadItem.PayloadType.Float:
+				case UIMessage.Datum.Type.Float:
 				{
 					float floatValue;
 					float.TryParse(payloadValue.stringValue, out floatValue);
@@ -51,14 +51,14 @@ namespace Glazman.Tank
 					payloadValue.stringValue = $"{floatValue:0.0000}";
 				} break;
 				
-				case UIMessage.PayloadItem.PayloadType.String:
+				case UIMessage.Datum.Type.String:
 				{
 					payloadValue.stringValue = EditorGUI.TextField(valuePosition, GUIContent.none, payloadValue.stringValue);
 				} break;
 
-				case UIMessage.PayloadItem.PayloadType.GameObject:
-				case UIMessage.PayloadItem.PayloadType.DropdownIndex:
-				case UIMessage.PayloadItem.PayloadType.DropdownValue:
+				case UIMessage.Datum.Type.GameObject:
+				case UIMessage.Datum.Type.DropdownIndex:
+				case UIMessage.Datum.Type.DropdownValue:
 				{
 					var goValue = property.FindPropertyRelative("gameObject");
 					EditorGUI.ObjectField(valuePosition, goValue, GUIContent.none);

@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.Assertions;
 
 namespace Glazman.Tank
@@ -20,6 +18,9 @@ namespace Glazman.Tank
 		Hard
 	}
 	
+	/// <summary>
+	/// A simple state machine to manage high-level game flow.
+	/// </summary>
 	public static class Game
 	{
 		private static GameState _gameState;
@@ -48,7 +49,7 @@ namespace Glazman.Tank
 				{
 					Assert.IsTrue(_gameState == GameState.MainMenu);
 					
-					var difficulty = (Difficulty)message.items[0].DropdownIndex;
+					var difficulty = (Difficulty)message.data[0].DropdownIndex;
 					StartNewGame(difficulty);
 				} break;
 			}
