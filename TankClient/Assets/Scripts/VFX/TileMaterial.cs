@@ -68,6 +68,14 @@ namespace Glazman.Tank
 //		{
 //			SetTileType(_tileType);
 //		}
+
+		public void SetTileSize(float width, float height)
+		{
+			if (_renderer == null)
+				return;
+			
+			_renderer.transform.localScale = new Vector3(width, height, 1f);
+		}
 		
 		public void SetTileType(TileType type)
 		{
@@ -78,12 +86,14 @@ namespace Glazman.Tank
 
 			float xTile = (int)_tileType % TILES_WIDE;
 			float yTile = Mathf.FloorToInt((int)_tileType / TILES_WIDE);
+
+			Material material = Application.isPlaying ? _renderer.material : _renderer.sharedMaterial;
 			
-			_renderer.sharedMaterial.mainTextureOffset = new Vector2(
+			material.mainTextureOffset = new Vector2(
 				(xTile * TILE_SIZE) / (TILES_WIDE * TILE_SIZE),
 				(yTile * TILE_SIZE) / (TILES_HIGH * TILE_SIZE) );
 			
-			_renderer.sharedMaterial.mainTextureScale = new Vector2(
+			material.mainTextureScale = new Vector2(
 				TILE_SIZE / (TILES_WIDE * TILE_SIZE),
 				TILE_SIZE / (TILES_HIGH * TILE_SIZE) );
 		}

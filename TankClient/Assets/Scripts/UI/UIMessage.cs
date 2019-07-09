@@ -56,10 +56,10 @@ namespace Glazman.Tank
 			public Type type;
 			
 			/// <summary>An optional value type, converted at runtime. Unused if Type is a GameObject reference.</summary>
-			[SerializeField] private string _value;
+			public string value;
 			
 			/// <summary>An optional GameObject reference. Unused if Type is a value type.</summary>
-			[SerializeField] private GameObject _gameObject;
+			public GameObject gameObject;
 
 			
 			public bool BoolValue
@@ -67,7 +67,7 @@ namespace Glazman.Tank
 				get
 				{
 					AssertType(Type.Bool, this);
-					return bool.Parse(_value);
+					return bool.Parse(value);
 				}
 			}
 			
@@ -76,7 +76,7 @@ namespace Glazman.Tank
 				get
 				{
 					AssertType(Type.Int, this);
-					return int.Parse(_value);
+					return int.Parse(value);
 				}
 			}
 
@@ -85,7 +85,7 @@ namespace Glazman.Tank
 				get
 				{
 					AssertType(Type.Float, this);
-					return float.Parse(_value);
+					return float.Parse(value);
 				}
 			}
 
@@ -94,7 +94,7 @@ namespace Glazman.Tank
 				get
 				{
 					AssertType(Type.String, this);
-					return _value;
+					return value;
 				}
 			}
 
@@ -103,7 +103,7 @@ namespace Glazman.Tank
 				get
 				{
 					AssertType(Type.GameObject, this);
-					return _gameObject;
+					return gameObject;
 				}
 			}
 
@@ -113,10 +113,10 @@ namespace Glazman.Tank
 				{
 					AssertType(Type.DropdownValue, this);
 					
-					if (_gameObject == null)
+					if (gameObject == null)
 						return "";
 					
-					var dropdown = _gameObject.GetComponent<Dropdown>();
+					var dropdown = gameObject.GetComponent<Dropdown>();
 					if (dropdown == null)
 						return "";
 
@@ -130,10 +130,10 @@ namespace Glazman.Tank
 				{
 					AssertType(Type.DropdownIndex, this);
 					
-					if (_gameObject == null)
+					if (gameObject == null)
 						return -1;
 					
-					var dropdown = _gameObject.GetComponent<Dropdown>();
+					var dropdown = gameObject.GetComponent<Dropdown>();
 					if (dropdown == null)
 						return -1;
 

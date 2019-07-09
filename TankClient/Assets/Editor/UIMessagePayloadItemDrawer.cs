@@ -21,39 +21,39 @@ namespace Glazman.Tank
 			valuePosition.width *= 0.4f;
 			valuePosition.x += typePosition.width;
 			
-			var payloadType = property.FindPropertyRelative("type");
-			payloadType.enumValueIndex = (int)(UIMessage.Datum.Type)EditorGUI.EnumPopup(typePosition, label, (UIMessage.Datum.Type)payloadType.enumValueIndex);
+			var valueType = property.FindPropertyRelative("type");
+			valueType.enumValueIndex = (int)(UIMessage.Datum.Type)EditorGUI.EnumPopup(typePosition, label, (UIMessage.Datum.Type)valueType.enumValueIndex);
 
-			var payloadValue = property.FindPropertyRelative("value");
-			switch ((UIMessage.Datum.Type)payloadType.enumValueIndex)
+			var valueProperty = property.FindPropertyRelative("value");
+			switch ((UIMessage.Datum.Type)valueType.enumValueIndex)
 			{
 				case UIMessage.Datum.Type.Bool:
 				{
 					bool boolValue;
-					bool.TryParse(payloadValue.stringValue, out boolValue);
+					bool.TryParse(valueProperty.stringValue, out boolValue);
 					boolValue = EditorGUI.Toggle(valuePosition, GUIContent.none, boolValue);
-					payloadValue.stringValue = boolValue.ToString();
+					valueProperty.stringValue = boolValue.ToString();
 				} break;
 
 				case UIMessage.Datum.Type.Int:
 				{
 					int intValue;
-					int.TryParse(payloadValue.stringValue, out intValue);
+					int.TryParse(valueProperty.stringValue, out intValue);
 					intValue = EditorGUI.IntField(valuePosition, GUIContent.none, intValue);
-					payloadValue.stringValue = intValue.ToString();
+					valueProperty.stringValue = intValue.ToString();
 				} break;
 				
 				case UIMessage.Datum.Type.Float:
 				{
 					float floatValue;
-					float.TryParse(payloadValue.stringValue, out floatValue);
+					float.TryParse(valueProperty.stringValue, out floatValue);
 					floatValue = EditorGUI.FloatField(valuePosition, GUIContent.none, floatValue);
-					payloadValue.stringValue = $"{floatValue:0.0000}";
+					valueProperty.stringValue = $"{floatValue:0.0000}";
 				} break;
 				
 				case UIMessage.Datum.Type.String:
 				{
-					payloadValue.stringValue = EditorGUI.TextField(valuePosition, GUIContent.none, payloadValue.stringValue);
+					valueProperty.stringValue = EditorGUI.TextField(valuePosition, GUIContent.none, valueProperty.stringValue);
 				} break;
 
 				case UIMessage.Datum.Type.GameObject:

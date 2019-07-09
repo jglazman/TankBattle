@@ -692,7 +692,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _message:
     type: 2
-    items:
+    data:
     - type: 5
       value: False
       gameObject: {fileID: 1065447849}

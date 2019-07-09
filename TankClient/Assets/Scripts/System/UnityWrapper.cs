@@ -44,6 +44,8 @@ namespace Glazman.Tank
 			}
 
 			_instance = this;
+			
+			DontDestroyOnLoad(gameObject);
 		}
 		
 		private void OnApplicationFocus(bool focus)
