@@ -1,8 +1,12 @@
 ﻿using System;
+using System.Net;
 using UnityEngine;
 
 namespace Glazman.Tank
 {
+	/// <summary>
+	/// Attach an arbitrary prefab to our root Transform.
+	/// </summary>
 	public sealed class PrefabModule : Module
 	{
 		public override int Priority { get { return ModulePriority.Default; } }
@@ -13,15 +17,21 @@ namespace Glazman.Tank
 
 
 		private GameObject _gameObject;
-		
+		public GameObject GameObject { get { return _gameObject; } }
 
-		public PrefabModule(string prefabName)
+		
+		public PrefabModule(string prefabName, Color color)
 		{
 			var prefab = Resources.Load<GameObject>(prefabName);
 			if (prefab == null)
 				throw new Exception($"Prefab not found in Resources: {prefabName}");
 			
 			_gameObject = GameObject.Instantiate(prefab);
+
+			// @todo: we could give this behaviour its own module, but time is money
+			var colorize = _gameObject.GetComponent<ColorizableBehaviour>();
+			if (colorize != null)
+				colorize.SetColor(color);
 		}
 
 		public override void LinkToDependency(Module dependency)

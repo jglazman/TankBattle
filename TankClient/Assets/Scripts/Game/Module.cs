@@ -15,6 +15,7 @@ namespace Glazman.Tank
 	public static class ModulePriority
 	{
 		public const int Default = 0;
+		public const int Agent = 1;
 	}
 
 	public abstract class Module : UnityBehaviour
@@ -45,6 +46,12 @@ namespace Glazman.Tank
 		}
 
 		protected virtual void InitializeInternal() { }
+		
+		
+		/// <summary>
+		/// Called after all dependencies have been linked.
+		/// </summary>
+		public virtual void Start() { }
 
 		
 		/// <summary>

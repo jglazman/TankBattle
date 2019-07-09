@@ -42,6 +42,8 @@ namespace Glazman.Tank
 				}
 			}
 
+			module.Start();
+
 			_modules.Add(module.ModuleType, module);
 		}
 

@@ -1,10 +1,16 @@
-﻿using UnityEngine;
+﻿/**
+ * Procedural world generating algorithms.
+ *
+ * Copyright (C) 2016 Jeremy Glazman.
+ */
+
+using UnityEngine;
 using UnityEngine.Assertions;
 using System.Collections;
 using System.Collections.Generic;
 using Glazman.Tank;
 
-public class WorldGenSeed
+public static class WorldGenSeed
 {
 	public static WorldTileConfig[,] SEED_MAZE1 = new WorldTileConfig[2,2]
 	{
@@ -410,8 +416,6 @@ public class TerrainGenerator
 		_isGenerating = true;
 		_isGenerated = false;
 
-		Debug.Log("_worldType! " + _worldType);
-
 		switch ( _worldType )
 		{
 			case WorldType.Random:
@@ -749,8 +753,6 @@ public class TerrainGenerator
 	{
 		if ( randomSeed != 0 )
 			UnityEngine.Random.InitState( randomSeed );
-
-		Debug.Log("random seed: " + randomSeed);
 
 		// decide which room to start in
 		WorldTile startRoom = GetPrimStartRoom();
