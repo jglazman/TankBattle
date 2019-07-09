@@ -5,11 +5,16 @@ namespace Glazman.Tank
 	{
 		Agent,
 		GameObject,
-		Model,
 		NpcAgent,
+		Pathfinding,
+		Prefab,
 		UserAgent,
-		Appearance,
-		Pathfinding
+		Transform
+	}
+
+	public static class ModulePriority
+	{
+		public const int Default = 0;
 	}
 
 	public abstract class Module : UnityBehaviour
@@ -17,14 +22,12 @@ namespace Glazman.Tank
 		/// <summary>Indentifies which type of module we were instantiated as.</summary>
 		public abstract ModuleType ModuleType { get; }
 
-		
-		private ModuleType[] _myDependencies = null;
-
 		/// <summary>A list of module types that this module depends on.</summary>
-		public ModuleType[] Dependencies { get { return _myDependencies; } }
+		public abstract ModuleType[] Dependencies { get; }
 
-		
+
 		private Entity _myEntity = null;
+		protected Entity MyEntity => _myEntity;
 
 		/// <summary>Our parent entity.</summary>
 		public Entity Entity { get { return _myEntity; } }

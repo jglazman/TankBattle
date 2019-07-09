@@ -1,5 +1,7 @@
 ﻿
 
+using UnityEngine;
+
 namespace Glazman.Tank
 {
 	/// <summary>
@@ -15,6 +17,8 @@ namespace Glazman.Tank
 		}
 		
 		public virtual void OnApplicationFocus(bool focus) { }
+		public virtual void OnControllerColliderHit(ControllerColliderHit hit) { }
+		public virtual void OnTriggerEnter(Collider otherCollider) { }
 		public virtual void Update(float deltaTime) { }
 		public virtual void FixedUpdate(float deltaTime) { }
 		public virtual void LateUpdate(float deltaTime) { }

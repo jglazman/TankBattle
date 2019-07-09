@@ -592,7 +592,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _message:
     type: 1
-    items: []
+    data: []
 --- !u!1 &1417362243
 GameObject:
   m_ObjectHideFlags: 0

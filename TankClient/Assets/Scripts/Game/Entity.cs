@@ -12,16 +12,16 @@ namespace Glazman.Tank
 		// @todo this dictionary provides quick lookups but limits each entity to a single module of each type (1:1);
 		// a 1:N structure would probably allow for much more interesting behaviors, but could prohibitively increase
 		// the complexity of interactions between entities.
-		private Dictionary<ModuleType, Module> _modulesMap = new Dictionary<ModuleType, Module>();
-
-		/// <summary>Our module instances.</summary>
-		private List<Module> _modules = new List<Module>(4);
+		private Dictionary<ModuleType, Module> _modules = new Dictionary<ModuleType, Module>();
 
 		
 		/// <summary>Add the given modules to ourself as a component, using our previously added modules as dependencies.</summary>
 		public void AddModule(Module module)
 		{
-			if (_modulesMap.ContainsKey(module.ModuleType))
+			if (module == null)
+				throw new ArgumentException("Tried to add a null module to an entity!");
+			
+			if (_modules.ContainsKey(module.ModuleType))
 				throw new ArgumentException($"Entity already has a module of the given type: {module.ModuleType}");
 			
 			module.Initialize(this);
@@ -35,20 +35,19 @@ namespace Glazman.Tank
 						throw new Exception($"A module cannot depend on itself: {module.ModuleType}");
 					
 					Module dependency;
-					if (!_modulesMap.TryGetValue(dependencyTypes[i], out dependency))
+					if (!_modules.TryGetValue(dependencyTypes[i], out dependency))
 						throw new Exception($"Missing module dependency: {module.ModuleType} depends on {dependencyTypes[i]}");
 
 					module.LinkToDependency(dependency);
 				}
 			}
 
-			_modules.Add(module);
-			_modulesMap.Add(module.ModuleType, module);
+			_modules.Add(module.ModuleType, module);
 		}
 
 		public bool TryGetModule(ModuleType moduleType, out Module module)
 		{
-			return _modulesMap.TryGetValue(moduleType, out module);
+			return _modules.TryGetValue(moduleType, out module);
 		}
 
 		public T TryGetModule<T>(ModuleType moduleType) where T : Module
@@ -64,7 +63,6 @@ namespace Glazman.Tank
 		public override void OnDestroy()
 		{
 			_modules.Clear();
-			_modulesMap.Clear();
 
 			base.OnDestroy();
 		}

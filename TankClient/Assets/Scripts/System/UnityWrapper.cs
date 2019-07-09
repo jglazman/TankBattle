@@ -51,7 +51,19 @@ namespace Glazman.Tank
 			for (int i = 0; i < _registeredBehaviours.Count; i++)
 				_registeredBehaviours[i]?.OnApplicationFocus(focus);
 		}
-		
+
+		private void OnControllerColliderHit(ControllerColliderHit hit)
+		{
+			for (int i = 0; i < _registeredBehaviours.Count; i++)
+				_registeredBehaviours[i]?.OnControllerColliderHit(hit);
+		}
+
+		private void OnTriggerEnter(Collider otherCollider)
+		{
+			for (int i = 0; i < _registeredBehaviours.Count; i++)
+				_registeredBehaviours[i]?.OnTriggerEnter(otherCollider);
+		}
+
 		private void Update()
 		{
 			for (int i = 0; i < _registeredBehaviours.Count; i++)
