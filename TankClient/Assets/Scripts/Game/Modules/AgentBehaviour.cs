@@ -9,11 +9,9 @@ namespace Glazman.Tank
 	/// </summary>
 	public class AgentBehaviour : MonoBehaviour
 	{
-		[SerializeField] private Transform _transform;
 		[SerializeField] private Collider _triggerCollider;
 		[SerializeField] private CharacterController _controller;
 
-		public Transform transform => _transform;
 		public Collider trigger => _triggerCollider;
 		public CharacterController controller => _controller;
 	}

@@ -324,11 +324,6 @@ public class TerrainGenerator
 		}
 	}
 
-	private WorldGenConfig _config = null;
-	public WorldGenConfig Config { get { return _config; } }
-	public bool HasConfig() { return ( _config != null ); }
-	public void SetConfig( WorldGenConfig config ) { _config = config; }
-
 
 #region public interface
 
@@ -357,7 +352,7 @@ public class TerrainGenerator
 		InitWorld( config.worldType, config.numCols, config.numRows, config.size, config.tileSeed );
 	}
 
-	public void InitWorld( WorldType worldType, int numCols, int numRows, Vector2 size, WorldTileConfig[,] tileSeed )
+	private void InitWorld( WorldType worldType, int numCols, int numRows, Vector2 size, WorldTileConfig[,] tileSeed )
 	{
 		_isInitializing = false;
 		_isInitialized = false;
@@ -666,15 +661,15 @@ public class TerrainGenerator
 				do
 				{
 					startRoom = _listRooms[ Random.Range( 0, _listRooms.Count ) ];
+
+					if (--numTries <= 0)
+						break;
+					
 					if ( ( startRoom.Col < bias ) || ( startRoom.Col > _numCols - bias ) ||
 						 ( startRoom.Row < bias ) || ( startRoom.Row > _numRows - bias ) )
 						startRoom = null;
 				}
-				while ( startRoom == null && numTries > 0 );
-
-				// if we failed then just pick one at random
-				if ( startRoom == null )
-					startRoom = _listRooms[ Random.Range( 0, _listRooms.Count ) ];
+				while ( startRoom == null);
 
 				return startRoom;
 			}
@@ -913,7 +908,7 @@ public class TerrainGenerator
 	}
 
 
-	private int GetLinearIndex( int col, int row )
+	public int GetLinearIndex( int col, int row )
 	{
 		return ( col * _numCols ) + row;
 	}

@@ -4,26 +4,42 @@ using System.Collections.Generic;
 
 namespace Glazman.Tank
 {
-	public class Entity : UnityBehaviour
+	public class Entity
 	{
 		public override int Priority { get { return 0; } }
 
-
+		
 		// @todo this dictionary provides quick lookups but limits each entity to a single module of each type (1:1);
 		// a 1:N structure would probably allow for much more interesting behaviors, but could prohibitively increase
 		// the complexity of interactions between entities.
 		private Dictionary<ModuleType, Module> _modules = new Dictionary<ModuleType, Module>();
 
-		
-		/// <summary>Add the given modules to ourself as a component, using our previously added modules as dependencies.</summary>
+
+		/// <summary>
+		/// Cleanup and invalidate all modules of this entity.
+		/// </summary>
+		public void Destroy()
+		{
+			if (_modules.Count > 0)
+			{
+				for (int i = _modules.Count; i >= 0; i--)
+					_modules[i].Destroy();
+
+				_modules.Clear();
+			}
+		}
+
+		/// <summary>
+		/// Add the given module to ourself as a component, using our previously added modules as dependencies.
+		/// </summary>
 		public void AddModule(Module module)
 		{
 			if (module == null)
 				throw new ArgumentException("Tried to add a null module to an entity!");
-			
+
 			if (_modules.ContainsKey(module.ModuleType))
 				throw new ArgumentException($"Entity already has a module of the given type: {module.ModuleType}");
-			
+
 			module.Initialize(this);
 
 			var dependencyTypes = module.Dependencies;
@@ -37,12 +53,10 @@ namespace Glazman.Tank
 					Module dependency;
 					if (!_modules.TryGetValue(dependencyTypes[i], out dependency))
 						throw new Exception($"Missing module dependency: {module.ModuleType} depends on {dependencyTypes[i]}");
-
+					
 					module.LinkToDependency(dependency);
 				}
 			}
-
-			module.Start();
 
 			_modules.Add(module.ModuleType, module);
 		}
@@ -51,7 +65,7 @@ namespace Glazman.Tank
 		{
 			return _modules.TryGetValue(moduleType, out module);
 		}
-
+		
 		public T TryGetModule<T>(ModuleType moduleType) where T : Module
 		{
 			Module module;
@@ -60,7 +74,7 @@ namespace Glazman.Tank
 
 			return default(T);
 		}
-
+		
 
 		public override void OnDestroy()
 		{
@@ -69,5 +83,4 @@ namespace Glazman.Tank
 			base.OnDestroy();
 		}
 	}
-
 }

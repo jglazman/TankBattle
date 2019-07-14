@@ -45,6 +45,7 @@ namespace Glazman.Tank
 
 			_instance = this;
 			
+			// this singleton persists for the lifetime of the application
 			DontDestroyOnLoad(gameObject);
 		}
 		

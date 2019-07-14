@@ -1,4 +1,7 @@
 ﻿
+using System.Text;
+using UnityEngine;
+
 namespace Glazman.Tank
 {
 	public enum ModuleType
@@ -23,35 +26,37 @@ namespace Glazman.Tank
 		/// <summary>Indentifies which type of module we were instantiated as.</summary>
 		public abstract ModuleType ModuleType { get; }
 
-		/// <summary>A list of module types that this module depends on.</summary>
+		/// <summary>An ordered list of module types that this module depends on (in dependency order).</summary>
 		public abstract ModuleType[] Dependencies { get; }
 
 
 		private Entity _myEntity = null;
-		protected Entity MyEntity => _myEntity;
-
-		/// <summary>Our parent entity.</summary>
-		public Entity Entity { get { return _myEntity; } }
+		public Entity entity => _myEntity;
 
 
 		/// <summary>
 		/// Called immediately after we are added to our parent entity
 		/// and before we are linked to any dependencies.
 		/// </summary>
-		public void Initialize(Entity entity)
+		public void Initialize(Entity e)
 		{
-			_myEntity = entity;
-			
+			_myEntity = e;
 			InitializeInternal();
 		}
 
 		protected virtual void InitializeInternal() { }
-		
-		
+
+
 		/// <summary>
-		/// Called after all dependencies have been linked.
+		/// Call this to destroy all modules and invalidate this entity.
 		/// </summary>
-		public virtual void Start() { }
+		public void Destroy()
+		{
+			DestroyInternal();
+			_myEntity = null;
+		}
+
+		protected virtual void DestroyInternal() { }
 
 		
 		/// <summary>
@@ -63,8 +68,25 @@ namespace Glazman.Tank
 			throw new System.ArgumentException($"Tried to link module {this.ModuleType} to unsupported dependency: {dependency.ModuleType}");
 		}
 
+
+
+		public override string ToString()
+		{
+			var sb = new StringBuilder("Module(");
+
+			var moduleTypes = (ModuleType[])System.Enum.GetValues(typeof(ModuleType));
+			foreach (var type in moduleTypes)
+			{
+				if (IsModuleType(type))
+					sb.Append($"{type.ToString()}|");
+			}
+
+			sb.Append(")");
+			return sb.ToString();
+		}
+
 		
-		public static bool DrawDebug = false;
+		public static bool DrawDebug = true;
 	}
 
 }

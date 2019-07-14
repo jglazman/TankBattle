@@ -43,5 +43,16 @@ namespace Glazman.Tank
 					break;
 			}
 		}
+		
+		
+		protected override void DestroyInternal()
+		{
+			if (_gameObject != null)
+			{
+				GameObject.Destroy(_gameObject);
+				_gameObject = null;
+			}
+			}
+		}
 	}
 }

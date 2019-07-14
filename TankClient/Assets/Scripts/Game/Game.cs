@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Text;
 using UnityEngine;
 using UnityEngine.Assertions;
-using Random = UnityEngine.Random;
 
 namespace Glazman.Tank
 {
@@ -29,7 +27,7 @@ namespace Glazman.Tank
 	public static class Game
 	{
 		private static GameState _gameState;
-		
+
 		
 		public static void Initialize()
 		{
@@ -92,17 +90,17 @@ namespace Glazman.Tank
 				( TERRAIN_TILE_HEIGHT * TERRAIN_NUM_ROWS * -0.5f ) + ( TERRAIN_TILE_HEIGHT * TERRAIN_NUM_ROWS ) - ( TERRAIN_TILE_HEIGHT * 0.5f )
 			);
 		}
-
+		
 		private static int GetEnemyCountFromDifficulty(Difficulty difficulty)
 		{
 			switch (difficulty)
-			{
+		{
 				case Difficulty.Easy:
 					return 3;
 				
 				case Difficulty.Normal:
 					return 5;
-				
+
 				case Difficulty.Hard:
 					return 10;
 			}
@@ -119,19 +117,19 @@ namespace Glazman.Tank
 					worldSeed = WorldGenSeed.SEED_MAZE2;
 					break;
 				
-				case Difficulty.Normal:
+				case Difficulty.Normal:	
 					worldSeed = WorldGenSeed.SEED_MAZE1;
 					break;
 				
 				case Difficulty.Hard:
 					worldSeed = WorldGenSeed.SEED_CAVERN1;
 					break;
-				
+
 				default:
 					throw new Exception($"Unhandled difficulty level: {difficulty}");
 			}
 			
-			int randomSeed = UnityEngine.Random.Range( 0, 9999999 );
+			int randomSeed = UnityEngine.Random.Range(0, 9999999);
 			var config = new TerrainGenerator.WorldGenConfig( randomSeed, WorldType.Prim, TERRAIN_NUM_COLS, TERRAIN_NUM_ROWS, new Vector2( TERRAIN_TILE_WIDTH, TERRAIN_TILE_HEIGHT ), worldSeed );
 			
 			var terrainGenerator = new TerrainGenerator();
@@ -140,12 +138,12 @@ namespace Glazman.Tank
 
 			while (!terrainGenerator.IsInitialized)
 				yield return null;
-			
+
 			terrainGenerator.GenerateWorld();
 
 			while (!terrainGenerator.IsGenerated)
 				yield return null;
-			
+
 			Camera.main.transform.position = new Vector3(TERRAIN_NUM_COLS - 1, TERRAIN_NUM_COLS * 2, TERRAIN_NUM_ROWS - 1);
 
 			int width = TERRAIN_NUM_COLS;
@@ -162,7 +160,7 @@ namespace Glazman.Tank
 			bool didSpawnPlayer = false;
 			int numEnemies = 0;
 			int desiredEnemies = GetEnemyCountFromDifficulty(difficulty);
-
+			
 			for ( int yTile = 0; yTile < height; yTile++ )
 			{
 				for ( int xTile = 0; xTile < width; xTile++ )
@@ -179,14 +177,14 @@ namespace Glazman.Tank
 						{
 							didSpawnPlayer = true;
 							EntityFactory.CreatePlayerTank("Player", worldPos);
-						}
+			}
 						else if (numEnemies < desiredEnemies && Random.value > 0.9f)
-						{
+			{
 							EntityFactory.CreateNpcTank($"Enemy_{numEnemies}", worldPos);
-						}
 					}
 				}
 			}
+		}
 		}
 		
 		/// <summary>Super brute-force road tile sequencer.</summary>
@@ -254,65 +252,9 @@ namespace Glazman.Tank
 					return TileType.HalfGrass_NS;
 				}
 			}
-			else
-			{
-				// this tile is not a road. what is adjacent?
-				if (nTile?.IsOpen() == true)
-				{
-					if (eTile?.IsOpen() == true)
-					{
-						if (wTile?.IsOpen() == true)
-						{
-							if (sTile?.IsOpen() == true)
-								return TileType.Grass;
-							else
-								return TileType.Grass2;
-						}
-						else if (sTile?.IsOpen() == true)
-							return TileType.Grass;
-						else
-							return TileType.Grass2;
-					}
-					else if (wTile?.IsOpen() == true)
-					{
-						if (sTile?.IsOpen() == true)
-							return TileType.Grass;
-						else
-							return TileType.Grass2;
-					}
-					else if (sTile?.IsOpen() == true)
-						return TileType.Grass;
-					else
-						return TileType.HalfGrass_SN;
-				}
-				else if (eTile?.IsOpen() == true)
-				{
-					if (wTile?.IsOpen() == true)
-					{
-						if (sTile?.IsOpen() == true)
-							return TileType.Grass;
-						else
-							return TileType.Grass;
-					}
-					else if (sTile?.IsOpen() == true)
-						return TileType.Grass2;
-					else
-						return TileType.HalfGrass_WE;
-				}
-				else if (wTile?.IsOpen() == true)
-				{
-					if (sTile?.IsOpen() == true)
-						return TileType.Grass;
-					else
-						return TileType.HalfGrass_EW;
-				}
-				else if (sTile?.IsOpen() == true)
-				{
-					return TileType.HalfGrass_NS;
-				}
-			}
 
-			return Random.value > 0.5f ? TileType.Grass : TileType.Grass2;
+			// this is not a road tile
+			return UnityEngine.Random.value > 0.5f ? TileType.Grass : TileType.Grass2;
 		}
 
 		private static void EndGame()

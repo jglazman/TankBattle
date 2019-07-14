@@ -12,6 +12,7 @@ namespace Glazman.Tank
 		{
 			foreach (var rend in _renderers)
 			{
+				// TODO: should use sharedMaterial with optimized assets
 				if (rend != null)
 					rend.material.color = color;
 			}

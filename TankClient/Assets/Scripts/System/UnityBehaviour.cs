@@ -11,7 +11,7 @@ namespace Glazman.Tank
 	{
 		public abstract int Priority { get; }
 
-		public UnityBehaviour()
+		protected UnityBehaviour()
 		{
 			UnityWrapper.Register(this);
 		}
