@@ -52,14 +52,16 @@ namespace Glazman.Tank
 		HalfRoad_EW2,			
 	}
 	
-	public class TileMaterial : MonoBehaviour
+	public class TerrainBehaviour : MonoBehaviour
 	{
 		[SerializeField] private TileType _tileType;
 		[SerializeField] private Renderer _renderer;
 
 		public TileType TileType => _tileType;
 
-		// hardcoded to terrainTiles_default.png
+		public bool isOpen { get; private set; }
+
+		// hardcoded to Assets/Textures/tex_terrain.png
 		private const float TILE_SIZE = 64f;
 		private const float TILES_WIDE = 10f;
 		private const float TILES_HIGH = 4f;
@@ -68,18 +70,19 @@ namespace Glazman.Tank
 //		{
 //			SetTileType(_tileType);
 //		}
-
+		
 		public void SetTileSize(float width, float height)
 		{
 			if (_renderer == null)
 				return;
 			
-			_renderer.transform.localScale = new Vector3(width, height, 1f);
+			transform.localScale = new Vector3(width, 1f, height);
 		}
 		
-		public void SetTileType(TileType type)
+		public void SetTileType(TileType type, bool open)
 		{
 			_tileType = type;
+			isOpen = open;
 
 			if (_renderer == null)
 				return;

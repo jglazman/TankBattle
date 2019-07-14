@@ -5,8 +5,8 @@ using UnityEditor;
 
 namespace Glazman.Tank
 {
-	[CustomEditor(typeof(TileMaterial))]
-	public class TileMaterialInspector : Editor
+	[CustomEditor(typeof(TerrainBehaviour))]
+	public class TerrainBehaviourInspector : Editor
 	{
 		public override void OnInspectorGUI()
 		{
@@ -14,9 +14,9 @@ namespace Glazman.Tank
 
 			if (GUI.changed)
 			{
-				var tileMaterial = target as TileMaterial;
-				var newTileType = tileMaterial.TileType;
-				tileMaterial.SetTileType(newTileType);
+				var terrain = target as TerrainBehaviour;
+				var newTileType = terrain.TileType;
+				terrain.SetTileType(newTileType, false);
 				EditorUtility.SetDirty(target);
 			}
 		}
