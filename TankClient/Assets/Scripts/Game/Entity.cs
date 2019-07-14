@@ -1,18 +1,22 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Glazman.Tank
 {
 	public class Entity
 	{
-		public override int Priority { get { return 0; } }
+		private List<Module> _modules = new List<Module>(4);
 
 		
-		// @todo this dictionary provides quick lookups but limits each entity to a single module of each type (1:1);
-		// a 1:N structure would probably allow for much more interesting behaviors, but could prohibitively increase
-		// the complexity of interactions between entities.
-		private Dictionary<ModuleType, Module> _modules = new Dictionary<ModuleType, Module>();
+		public Entity() { }
+
+		public Entity(params Module[] modules)
+		{
+			foreach (var mod in modules)
+				AddModule(mod);
+		}
 
 
 		/// <summary>
@@ -37,8 +41,12 @@ namespace Glazman.Tank
 			if (module == null)
 				throw new ArgumentException("Tried to add a null module to an entity!");
 
-			if (_modules.ContainsKey(module.ModuleType))
-				throw new ArgumentException($"Entity already has a module of the given type: {module.ModuleType}");
+			var moduleTypes = (ModuleType[])Enum.GetValues(typeof(ModuleType));
+			foreach (var type in moduleTypes)
+			{
+				if (module.IsModuleType(type) && _modules.Exists(m => m.IsModuleType(type)))
+					throw new ArgumentException($"Entity already has a module of the given type: {type}");
+			}
 
 			module.Initialize(this);
 
@@ -47,40 +55,42 @@ namespace Glazman.Tank
 			{
 				for (int i = 0; i < dependencyTypes.Length; i++)
 				{
-					if (dependencyTypes[i] == module.ModuleType)
-						throw new Exception($"A module cannot depend on itself: {module.ModuleType}");
+					var depType = dependencyTypes[i];
 					
-					Module dependency;
-					if (!_modules.TryGetValue(dependencyTypes[i], out dependency))
-						throw new Exception($"Missing module dependency: {module.ModuleType} depends on {dependencyTypes[i]}");
+					if (module.IsModuleType(depType))
+						throw new Exception($"A module cannot depend on itself: {depType}");
 					
-					module.LinkToDependency(dependency);
+					var dependencyModule = _modules.FirstOrDefault(m => m.IsModuleType(depType));
+					if (dependencyModule == null)
+						throw new Exception($"Missing module dependency: {depType}");
+
+					module.LinkToDependency(dependencyModule);
 				}
 			}
 
-			_modules.Add(module.ModuleType, module);
+			_modules.Add(module);
 		}
 
+		public Module GetModule(ModuleType moduleType)
+		{
+			return _modules.FirstOrDefault(m => m.IsModuleType(moduleType));
+		}
+		
+		public T GetModule<T>(ModuleType moduleType) where T : Module
+		{
+			return GetModule(moduleType) as T;
+		}
+		
 		public bool TryGetModule(ModuleType moduleType, out Module module)
 		{
-			return _modules.TryGetValue(moduleType, out module);
+			module = GetModule(moduleType);
+			return module != null;
 		}
-		
-		public T TryGetModule<T>(ModuleType moduleType) where T : Module
+
+		public bool TryGetModule<T>(ModuleType moduleType, out T module) where T : Module
 		{
-			Module module;
-			if (TryGetModule(moduleType, out module))
-				return module as T;
-
-			return default(T);
-		}
-		
-
-		public override void OnDestroy()
-		{
-			_modules.Clear();
-
-			base.OnDestroy();
+			module = GetModule<T>(moduleType);
+			return module != null;
 		}
 	}
 }

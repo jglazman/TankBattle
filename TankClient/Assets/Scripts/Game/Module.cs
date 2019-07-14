@@ -4,15 +4,13 @@ using UnityEngine;
 
 namespace Glazman.Tank
 {
+	[System.Flags]
 	public enum ModuleType
 	{
-		Agent,
-		GameObject,
-		NpcAgent,
-		Pathfinding,
-		Prefab,
-		UserAgent,
-		Transform
+		Undefined	= 0x0000,
+		Transform	= 0x0001,
+		Agent		= 0x0002,
+		Prefab		= 0x0004
 	}
 
 	public static class ModulePriority
@@ -24,7 +22,12 @@ namespace Glazman.Tank
 	public abstract class Module : UnityBehaviour
 	{
 		/// <summary>Indentifies which type of module we were instantiated as.</summary>
-		public abstract ModuleType ModuleType { get; }
+		protected abstract ModuleType ModuleType { get; }
+
+		public bool IsModuleType(ModuleType type)
+		{
+			return (ModuleType & type) != 0;
+		}
 
 		/// <summary>An ordered list of module types that this module depends on (in dependency order).</summary>
 		public abstract ModuleType[] Dependencies { get; }

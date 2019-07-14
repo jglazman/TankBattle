@@ -1,54 +1,41 @@
 ﻿using System;
 using UnityEngine;
-using UnityEngine.Assertions;
-using System.Collections;
-using System.Collections.Generic;
-
 
 namespace Glazman.Tank
 {
+	/// <inheritdoc />
 	/// <summary>
 	/// A CharacterController and functionality to control its movement.
 	/// </summary>
-	public sealed class AgentModule : Module
+	public sealed class AgentModule : TransformModule
 	{
 		public override int Priority { get { return ModulePriority.Agent; } }
 
-		public override ModuleType ModuleType { get { return ModuleType.Agent; } }
+		protected override ModuleType ModuleType { get { return ModuleType.Transform | ModuleType.Agent; } }
 
 		public override ModuleType[] Dependencies { get { return null; } }
 
 
 		private AgentBehaviour _agentBehaviour;
-
-		private Transform MyTransform => _agentBehaviour.transform;
-		private GameObject MyGameObject => _agentBehaviour.gameObject;
-		private CharacterController MyController => _agentBehaviour.controller;
+		private CharacterController myController => _agentBehaviour.controller;
 		
-		public AgentModule(string prefabName, Vector3 worldPosition)
+		public AgentModule(string gameObjectName, string prefabName, Vector3 worldPosition)
 		{
 			var prefab = Resources.Load<AgentBehaviour>(prefabName);
 			if (prefab == null)
 				throw new Exception($"AgentBehaviour prefab not found in Resources: {prefabName}");
 			
-			_agentBehaviour = GameObject.Instantiate<AgentBehaviour>(prefab);
+			_agentBehaviour = GameObject.Instantiate<AgentBehaviour>(prefab, worldPosition, Quaternion.identity);
+			_transform = _agentBehaviour.transform;
+			_gameObject = _agentBehaviour.gameObject;
+			_gameObject.name = gameObjectName;
 		}
 		
-		public override void LinkToDependency(Module dependency)
-		{
-			switch (dependency.ModuleType)
-			{
-				case ModuleType.Transform:
-					(dependency as TransformModule).AttachToParent(MyTransform, Vector3.zero);
-					break;
-			}
-		}
-
 		public override void OnControllerColliderHit(ControllerColliderHit hit)
 		{
 			ApplyFriction(hit.normal);
 		}
-		
+
 		public override void FixedUpdate(float fixedDeltaTime)
 		{
 			StepFacing(fixedDeltaTime);
@@ -57,8 +44,8 @@ namespace Glazman.Tank
 
 			if (DrawDebug)
 			{
-				Debug.DrawLine(MyTransform.position + new Vector3(0f, 0f, 0f), MyTransform.position + _velocity + new Vector3(0f, 0f, 0f), new Color(0f, 1f, 0f));
-				Debug.DrawLine(MyTransform.position + new Vector3(0f, 0.5f, 0f), MyTransform.position + _desiredDirection + new Vector3(0f, 0.5f, 0f), new Color(0f, 0.8f, 0f));
+				Debug.DrawLine(_transform.position + new Vector3(0f, 0f, 0f), _transform.position + _velocity + new Vector3(0f, 0f, 0f), new Color(0f, 1f, 0f));
+				Debug.DrawLine(_transform.position + new Vector3(0f, 0.5f, 0f), _transform.position + _desiredDirection + new Vector3(0f, 0.5f, 0f), new Color(0f, 0.8f, 0f));
 				//Debug.DrawLine( MyTransform.position + new Vector3( 0f, 1f, 0f ), MyTransform.position + _velocity + new Vector3( 0f, 1f, 0f ), new Color( 0f, 0.6f, 0f ) );
 			}
 		}
@@ -138,23 +125,11 @@ namespace Glazman.Tank
 			_velocity += normal * _velocity.magnitude * _friction;
 
 			if (DrawDebug)
-				Debug.DrawLine(MyTransform.position + new Vector3(0f, 1f, 0f), MyTransform.position + normal + new Vector3(0f, 1f, 0f), Color.white);
+				Debug.DrawLine(_transform.position + new Vector3(0f, 1f, 0f), _transform.position + normal + new Vector3(0f, 1f, 0f), Color.white);
 		}
 
 		private void StepFacing(float deltaTime)
 		{
-//		if (GameModeManager.Mode == GameMode.Isometric)
-//		{
-//			// don't turn immediately in all cases, wait until we hit a threshold first
-//			float turnAngle = Vector3.Angle(transform.forward, UserInputManager.CursorWorldPosition - transform.position);
-//			float diffAngle = Mathf.Abs(DesiredFacingAngle - turnAngle);
-//			Debug.Log ("  >> angle dif: " + diffAngle);
-//			if (diffAngle <= 60.0f)
-//			{
-//				return;
-//			}
-//		}
-
 			// since all actors in this game are permanently grounded, we can only turn around our Y-axis;
 			// this is a useful design constraint in a networked environment because we only need to
 			// sync a single float rather than an entire quaternion
@@ -164,7 +139,7 @@ namespace Glazman.Tank
 			if (_rotation != _prevRotation)
 			{
 				_prevRotation = _rotation;
-				MyTransform.rotation = _rotation; // this is more expensive than you might expect
+				_transform.rotation = _rotation; // this is more expensive than you might expect
 			}
 		}
 
@@ -217,19 +192,19 @@ namespace Glazman.Tank
 					// CharacterController.stepOffset controls how high UP we can step but doesn't
 					// snap us to the ground in a similar way when stepping DOWN, so we have to snap
 					// ourselves to the ground here to keep from bouncing down inclines when using Move()
-					if (Physics.Raycast(MyTransform.position, Vector3.down, MyController.stepOffset, _layerMask))
-						stepDistance.y -= MyController.stepOffset;
+					if (Physics.Raycast(_transform.position, Vector3.down, myController.stepOffset, _layerMask))
+						stepDistance.y -= myController.stepOffset;
 				}
 			}
 
 			// take a step
 			if (_simpleMove)
 			{
-				_isGrounded = MyController.SimpleMove(stepDistance);
+				_isGrounded = myController.SimpleMove(stepDistance);
 			}
 			else
 			{
-				CollisionFlags flags = MyController.Move(stepDistance);
+				CollisionFlags flags = myController.Move(stepDistance);
 				_isGrounded = ((flags & CollisionFlags.CollidedBelow) != 0);
 			}
 

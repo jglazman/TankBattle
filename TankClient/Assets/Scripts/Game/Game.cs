@@ -26,7 +26,13 @@ namespace Glazman.Tank
 	/// </summary>
 	public static class Game
 	{
+		// the size of terrain tiles in world units
+		private const int TERRAIN_TILE_SIZE = 2;
+		
 		private static GameState _gameState;
+		private static Entity _playerEntity;
+		private static List<Entity> _enemyEntities = new List<Entity>();
+		private static List<Entity> _terrainEntities = new List<Entity>();
 
 		
 		public static void Initialize()
@@ -65,8 +71,6 @@ namespace Glazman.Tank
 			}
 		}
 
-		private static TileMaterial[,] _terrainTiles;
-
 		private static void StartNewGame(Difficulty difficulty)
 		{
 			Debug.LogWarning($"Start new game!  Difficulty={difficulty}");
@@ -74,117 +78,118 @@ namespace Glazman.Tank
 			_gameState = GameState.GameInProgress;
 			Utilities.LoadScene(SceneName.Game);
 
-			UnityWrapper.Instance.StartCoroutine(GenerateTerrain(difficulty));
-		}
-
-		private const int TERRAIN_NUM_COLS = 13;
-		private const int TERRAIN_NUM_ROWS = 13;
-		private const int TERRAIN_TILE_WIDTH = 2;
-		private const int TERRAIN_TILE_HEIGHT = 2;
-		
-		private static Vector3 GetWorldPosition()
-		{
-			return new Vector3(
-				( TERRAIN_TILE_WIDTH * TERRAIN_NUM_COLS * -0.5f ) + ( TERRAIN_TILE_WIDTH * TERRAIN_NUM_COLS ) - ( TERRAIN_TILE_WIDTH * 0.5f ),
-				0f,
-				( TERRAIN_TILE_HEIGHT * TERRAIN_NUM_ROWS * -0.5f ) + ( TERRAIN_TILE_HEIGHT * TERRAIN_NUM_ROWS ) - ( TERRAIN_TILE_HEIGHT * 0.5f )
-			);
+			UnityWrapper.Instance.StartCoroutine(InitializeLevel(difficulty));
 		}
 		
-		private static int GetEnemyCountFromDifficulty(Difficulty difficulty)
+		private static IEnumerator InitializeLevel(Difficulty difficulty)
 		{
-			switch (difficulty)
-		{
-				case Difficulty.Easy:
-					return 3;
-				
-				case Difficulty.Normal:
-					return 5;
+			int terrainCols, terrainRows, desiredEnemies;
 
-				case Difficulty.Hard:
-					return 10;
-			}
-
-			throw new Exception($"Unhandled difficulty level: {difficulty}");
-		}
-		
-		private static IEnumerator GenerateTerrain(Difficulty difficulty)
-		{
+			// generate terrain data
 			WorldTileConfig[,] worldSeed;
 			switch (difficulty)
 			{
 				case Difficulty.Easy:
 					worldSeed = WorldGenSeed.SEED_MAZE2;
+					terrainCols = 11;
+					terrainRows = 11;
+					desiredEnemies = 3;
 					break;
 				
 				case Difficulty.Normal:	
 					worldSeed = WorldGenSeed.SEED_MAZE1;
+					terrainCols = 13;
+					terrainRows = 13;
+					desiredEnemies = 5;
 					break;
 				
 				case Difficulty.Hard:
 					worldSeed = WorldGenSeed.SEED_CAVERN1;
+					terrainCols = 15;
+					terrainRows = 15;
+					desiredEnemies = 10;
 					break;
 
 				default:
 					throw new Exception($"Unhandled difficulty level: {difficulty}");
 			}
 			
+			// center the camera over the terrain
+			Camera.main.transform.position = new Vector3(terrainCols - 1, terrainCols * 2, terrainRows - 1);
+
 			int randomSeed = UnityEngine.Random.Range(0, 9999999);
-			var config = new TerrainGenerator.WorldGenConfig( randomSeed, WorldType.Prim, TERRAIN_NUM_COLS, TERRAIN_NUM_ROWS, new Vector2( TERRAIN_TILE_WIDTH, TERRAIN_TILE_HEIGHT ), worldSeed );
+			var config = new TerrainGenerator.WorldGenConfig(randomSeed, WorldType.Prim, terrainCols, terrainRows, 
+				new Vector2(TERRAIN_TILE_SIZE, TERRAIN_TILE_SIZE), worldSeed);
 			
 			var terrainGenerator = new TerrainGenerator();
-			terrainGenerator.SetConfig(config);			
 			terrainGenerator.InitWorldFromConfig(config);
-
 			while (!terrainGenerator.IsInitialized)
 				yield return null;
 
 			terrainGenerator.GenerateWorld();
-
 			while (!terrainGenerator.IsGenerated)
 				yield return null;
 
-			Camera.main.transform.position = new Vector3(TERRAIN_NUM_COLS - 1, TERRAIN_NUM_COLS * 2, TERRAIN_NUM_ROWS - 1);
-
-			int width = TERRAIN_NUM_COLS;
-			int height = TERRAIN_NUM_ROWS;
-
-			Vector3 centerPos = GetWorldPosition();
-			Vector3 originPos = centerPos;
-			originPos.x -= ( width * 0.5f ) - 0.5f;
-			originPos.z -= ( height * 0.5f ) - 0.5f;
-
-			_terrainTiles = new TileMaterial[TERRAIN_NUM_COLS,TERRAIN_NUM_ROWS];
-			var tilePrefab = Resources.Load<TileMaterial>("GroundTile");
-
-			bool didSpawnPlayer = false;
-			int numEnemies = 0;
-			int desiredEnemies = GetEnemyCountFromDifficulty(difficulty);
-			
-			for ( int yTile = 0; yTile < height; yTile++ )
+			// spawn terrain tiles
+			for ( int yTile = 0; yTile < terrainRows; yTile++ )
 			{
-				for ( int xTile = 0; xTile < width; xTile++ )
+				for ( int xTile = 0; xTile < terrainCols; xTile++ )
 				{
-					var worldPos = new Vector3(xTile * TERRAIN_TILE_WIDTH, 0f, yTile * TERRAIN_TILE_HEIGHT);
-					var tileInstance = GameObject.Instantiate<TileMaterial>(tilePrefab, worldPos, Quaternion.identity);
-					tileInstance.SetTileType(GetTerrainType(terrainGenerator, xTile, yTile));
-					tileInstance.SetTileSize(TERRAIN_TILE_WIDTH, TERRAIN_TILE_HEIGHT);
-					_terrainTiles[xTile,yTile] = tileInstance;
+					bool isRoadTile = terrainGenerator.GetTile(xTile, yTile).IsOpen();
+					var tileType = GetTerrainType(terrainGenerator, xTile, yTile);
+					var worldPos = GetTileWorldPosition(xTile, yTile);
+					var terrain = EntityFactory.CreateTerrain($"Terrain_{xTile}_{yTile}", worldPos, tileType, isRoadTile, TERRAIN_TILE_SIZE);
+					_terrainEntities.Add(terrain);
 
-					if (terrainGenerator.GetTile(xTile, yTile).IsOpen())
+					// randomly spawn the player on a road tile
+					if (isRoadTile)
 					{
-						if (!didSpawnPlayer && Random.value > 0.9f)
-						{
-							didSpawnPlayer = true;
-							EntityFactory.CreatePlayerTank("Player", worldPos);
+						if (_playerEntity == null && UnityEngine.Random.value > 0.75f)
+							_playerEntity = EntityFactory.CreatePlayerTank("Player", worldPos);
+					}
+				}
 			}
-						else if (numEnemies < desiredEnemies && Random.value > 0.9f)
+			
+			// lame fallback in case beat the odds and never placer the player
+			if (_playerEntity == null)
 			{
-							EntityFactory.CreateNpcTank($"Enemy_{numEnemies}", worldPos);
+				for ( int yTile = 0; yTile < terrainRows; yTile++ )
+				{
+					for (int xTile = 0; xTile < terrainCols; xTile++)
+					{
+						int index = terrainGenerator.GetLinearIndex(xTile, yTile);
+						var terrain = _terrainEntities[index].GetModule<PrefabModule<TerrainBehaviour>>(ModuleType.Prefab);
+						if (terrain.component.isOpen)
+						{
+							_playerEntity = EntityFactory.CreatePlayerTank("Player", GetTileWorldPosition(xTile, yTile));
+							break;
+						}
+					}
+
+					if (_playerEntity != null)
+						break;
+				}
+			}
+
+			// iterate backwards over the terrain to place enemies preferentially far from the player
+			for (int yTile = terrainRows - 1; yTile >= 0; yTile--)
+			{
+				for (int xTile = terrainCols - 1; xTile >= 0; xTile--)
+				{
+					int index = terrainGenerator.GetLinearIndex(xTile, yTile);
+					var terrain = _terrainEntities[index].GetModule<PrefabModule<TerrainBehaviour>>(ModuleType.Prefab);
+					if (terrain.component.isOpen && _enemyEntities.Count < desiredEnemies && UnityEngine.Random.value > 0.8f)
+					{
+						var enemy = EntityFactory.CreateNpcTank($"Enemy_{_enemyEntities.Count}", GetTileWorldPosition(xTile, yTile));
+						_enemyEntities.Add(enemy);
 					}
 				}
 			}
 		}
+
+		private static Vector3 GetTileWorldPosition(int col, int row)
+		{
+			return new Vector3(col * TERRAIN_TILE_SIZE, 0f, row * TERRAIN_TILE_SIZE);
 		}
 		
 		/// <summary>Super brute-force road tile sequencer.</summary>
@@ -259,7 +264,17 @@ namespace Glazman.Tank
 
 		private static void EndGame()
 		{
-			_terrainTiles = null;
+			_playerEntity.Destroy();
+			_playerEntity = null;
+			
+			foreach (var enemy in _enemyEntities)
+				enemy.Destroy();
+			_enemyEntities.Clear();
+			
+			foreach (var terrain in _terrainEntities)
+				terrain.Destroy();
+			_terrainEntities.Clear();
+			
 			Utilities.LoadScene(SceneName.MainMenu);
 		}
 	}

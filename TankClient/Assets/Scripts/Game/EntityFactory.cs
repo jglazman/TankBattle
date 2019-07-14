@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Glazman.Tank
 {
@@ -8,20 +6,31 @@ namespace Glazman.Tank
 	{
 		public static Entity CreatePlayerTank(string name, Vector3 worldPosition)
 		{
-			var entity = new Entity();
-			entity.AddModule(new AgentModule("AgentController", worldPosition));
-			entity.AddModule(new TransformModule(name, worldPosition));
-			entity.AddModule(new PrefabModule("TankModel", Color.green));
-			return entity;
+			var agent = new AgentModule(name, "AgentController", worldPosition);
+			var tankModel = new PrefabModule<ColorizableBehaviour>("TankModel");
+			tankModel.component.SetColor(Color.green);
+			
+			return new Entity(agent, tankModel);
 		}
 		
 		public static Entity CreateNpcTank(string name, Vector3 worldPosition)
 		{
-			var entity = new Entity();
-			entity.AddModule(new AgentModule("AgentController", worldPosition));
-			entity.AddModule(new TransformModule(name, worldPosition));
-			entity.AddModule(new PrefabModule("TankModel", Color.red));
-			return entity;
+			var agent = new AgentModule(name, "AgentController", worldPosition);
+			var tankModel = new PrefabModule<ColorizableBehaviour>("TankModel");
+			tankModel.component.SetColor(Color.red);
+			
+			return new Entity(agent, tankModel);
+		}
+
+		public static Entity CreateTerrain(string name, Vector3 worldPos, TileType tileType, bool isOpen, float size)
+		{
+			var transform = new TransformModule(name, worldPos);
+			
+			var terrain = new PrefabModule<TerrainBehaviour>("TerrainTile");
+			terrain.component.SetTileSize(size, size);
+			terrain.component.SetTileType(tileType, isOpen);
+			
+			return new Entity(transform, terrain);
 		}
 	}
 }
