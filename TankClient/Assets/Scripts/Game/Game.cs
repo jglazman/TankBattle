@@ -33,8 +33,9 @@ namespace Glazman.Tank
 		private static Entity _playerEntity;
 		private static List<Entity> _enemyEntities = new List<Entity>();
 		private static List<Entity> _terrainEntities = new List<Entity>();
+		private static List<Entity> _propEntities = new List<Entity>();
 
-		
+
 		public static void Initialize()
 		{
 //			Assert.raiseExceptions = true;
@@ -141,11 +142,20 @@ namespace Glazman.Tank
 					var terrain = EntityFactory.CreateTerrain($"Terrain_{xTile}_{yTile}", worldPos, tileType, isRoadTile, TERRAIN_TILE_SIZE);
 					_terrainEntities.Add(terrain);
 
-					// randomly spawn the player on a road tile
 					if (isRoadTile)
 					{
+						// randomly spawn the player on a road tile
 						if (_playerEntity == null && UnityEngine.Random.value > 0.75f)
 							_playerEntity = EntityFactory.CreatePlayerTank("Player", worldPos);
+					}
+					else
+					{
+						// randomly spawn obstacles
+						if (UnityEngine.Random.value > 0.5f)
+						{
+							var prop = EntityFactory.CreateProp($"Prop_Tree_{_propEntities.Count}", worldPos, "PropTree");
+							_propEntities.Add(prop);
+						}
 					}
 				}
 			}
@@ -274,6 +284,10 @@ namespace Glazman.Tank
 			foreach (var terrain in _terrainEntities)
 				terrain.Destroy();
 			_terrainEntities.Clear();
+			
+			foreach (var prop in _propEntities)
+				prop.Destroy();
+			_propEntities.Clear();
 			
 			Utilities.LoadScene(SceneName.MainMenu);
 		}

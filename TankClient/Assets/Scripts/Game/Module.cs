@@ -7,10 +7,10 @@ namespace Glazman.Tank
 	[System.Flags]
 	public enum ModuleType
 	{
-		Undefined	= 0x0000,
-		Transform	= 0x0001,
-		Agent		= 0x0002,
-		Prefab		= 0x0004
+		Undefined	= 0,
+		Transform	= 1,
+		Agent		= 2,
+		Prefab		= 4,
 	}
 
 	public static class ModulePriority

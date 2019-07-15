@@ -50,7 +50,6 @@ namespace Glazman.Tank
 	}
 
 
-	/// <inheritdoc />
 	/// <summary>
 	/// Attach an arbitrary prefab with a component of type T to our root Transform.
 	/// </summary>
