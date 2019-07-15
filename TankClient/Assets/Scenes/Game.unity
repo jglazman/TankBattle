@@ -353,6 +353,7 @@ MonoBehaviour:
   _broadcastOnClick: 0
   _broadcastWhilePressed: 1
   _matchHitboxToSprite: 1
+  _listenToKeyBindings: 1
 --- !u!114 &253648310
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -595,6 +596,7 @@ MonoBehaviour:
   _broadcastOnClick: 0
   _broadcastWhilePressed: 1
   _matchHitboxToSprite: 1
+  _listenToKeyBindings: 1
 --- !u!114 &434308986
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -731,6 +733,7 @@ MonoBehaviour:
   _broadcastOnClick: 0
   _broadcastWhilePressed: 1
   _matchHitboxToSprite: 1
+  _listenToKeyBindings: 1
 --- !u!114 &485446829
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1003,6 +1006,7 @@ MonoBehaviour:
   _broadcastOnClick: 0
   _broadcastWhilePressed: 1
   _matchHitboxToSprite: 1
+  _listenToKeyBindings: 1
 --- !u!114 &921103745
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1178,6 +1182,7 @@ MonoBehaviour:
   _broadcastOnClick: 0
   _broadcastWhilePressed: 1
   _matchHitboxToSprite: 1
+  _listenToKeyBindings: 1
 --- !u!114 &1278203881
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1394,6 +1399,7 @@ MonoBehaviour:
   _broadcastOnClick: 1
   _broadcastWhilePressed: 0
   _matchHitboxToSprite: 0
+  _listenToKeyBindings: 0
 --- !u!1 &1493092785
 GameObject:
   m_ObjectHideFlags: 0
@@ -1451,6 +1457,7 @@ MonoBehaviour:
   _broadcastOnClick: 0
   _broadcastWhilePressed: 1
   _matchHitboxToSprite: 1
+  _listenToKeyBindings: 1
 --- !u!114 &1493092788
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1587,6 +1594,7 @@ MonoBehaviour:
   _broadcastOnClick: 0
   _broadcastWhilePressed: 1
   _matchHitboxToSprite: 1
+  _listenToKeyBindings: 1
 --- !u!114 &1633269815
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1822,6 +1830,7 @@ MonoBehaviour:
   _broadcastOnClick: 0
   _broadcastWhilePressed: 1
   _matchHitboxToSprite: 1
+  _listenToKeyBindings: 1
 --- !u!114 &2065062807
 MonoBehaviour:
   m_ObjectHideFlags: 0

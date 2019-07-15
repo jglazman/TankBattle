@@ -1,4 +1,5 @@
 ﻿using System;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -25,9 +26,13 @@ namespace Glazman.Tank
 		[Tooltip("If enabled, then the button hitbox will exactly match the target graphic sprite (sprite must have read/write enabled).")]
 		[SerializeField] private bool _matchHitboxToSprite;
 		
+		[Tooltip("If enabled, then our button visual states will activate if a matching keyboard shortcut is used.")]
+		[SerializeField] private bool _listenToKeyBindings;
+		
 		private bool _isHover;
 		private UIButton _button;
 		private Image _buttonImage;
+		private bool _isKeyActive;
 		
 		private void Awake()
 		{
@@ -39,6 +44,15 @@ namespace Glazman.Tank
 				if (_buttonImage != null)
 					_buttonImage.alphaHitTestMinimumThreshold = _matchHitboxToSprite ? 1f : 0f;
 			}
+			
+			if (_listenToKeyBindings)
+				GameUI.ListenForMessages(HandleUIMessage);
+		}
+		
+		private void HandleUIMessage(UIMessage message)
+		{
+			if (message.type == _message.type)
+				_isKeyActive = true;
 		}
 
 		private void Update()
@@ -48,7 +62,12 @@ namespace Glazman.Tank
 			// set visual state
 			if (_button != null)
 			{
-				if (_isHover)
+				if (_isKeyActive)
+				{
+					_button.SetStatePressed();
+					_isKeyActive = false;
+				}
+				else if (_isHover)
 				{
 					if (isPressed)
 						_button.SetStatePressed();
