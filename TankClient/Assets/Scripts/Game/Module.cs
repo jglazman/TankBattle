@@ -11,12 +11,16 @@ namespace Glazman.Tank
 		Transform	= 1,
 		Agent		= 2,
 		Prefab		= 4,
+		UserAgent	= 8,
+		NpcAgent	= 16
 	}
 
 	public static class ModulePriority
 	{
-		public const int Default = 0;
-		public const int Agent = 1;
+		public const int UserInput 		= -100;
+		public const int Default		= 0;
+		public const int UserAgent		= 10;
+		public const int Agent 			= 11;
 	}
 
 	public abstract class Module : UnityBehaviour

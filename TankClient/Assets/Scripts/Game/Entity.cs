@@ -26,7 +26,7 @@ namespace Glazman.Tank
 		{
 			if (_modules.Count > 0)
 			{
-				for (int i = _modules.Count; i >= 0; i--)
+				for (int i = _modules.Count - 1; i >= 0; i--)
 					_modules[i].Destroy();
 
 				_modules.Clear();

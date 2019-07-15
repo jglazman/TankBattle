@@ -13,10 +13,21 @@ namespace Glazman.Tank
 		public enum MessageType
 		{
 			Undefined = 0,
+			
 			SplashContinue,
 			StartNewGame,
 			PauseGame,
-			QuitGame
+			QuitGame,
+			
+			MoveUp,
+			MoveDown,
+			MoveLeft,
+			MoveRight,
+			
+			LookUp,
+			LookDown,
+			LookLeft,
+			LookRight
 		}
 
 		public MessageType type;

@@ -36,11 +36,15 @@ namespace Glazman.Tank
 		private static List<Entity> _propEntities = new List<Entity>();
 
 
+		private static UserInput _userInput;
+		
 		public static void Initialize()
 		{
 //			Assert.raiseExceptions = true;
 			
 			GameUI.ListenForMessages(HandleUIMessage);
+			
+			_userInput = new UserInput();
 		}
 
 		private static void HandleUIMessage(UIMessage message)
