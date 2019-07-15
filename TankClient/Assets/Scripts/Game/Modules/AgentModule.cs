@@ -33,11 +33,17 @@ namespace Glazman.Tank
 		
 		public override void OnControllerColliderHit(ControllerColliderHit hit)
 		{
+			if (_agentBehaviour == null)
+				return;
+			
 			ApplyFriction(hit.normal);
 		}
 
 		public override void FixedUpdate(float fixedDeltaTime)
 		{
+			if (_agentBehaviour == null)
+				return;
+			
 			StepFacing(fixedDeltaTime);
 			StepVelocity(fixedDeltaTime);
 			StepMovement(fixedDeltaTime);
@@ -50,11 +56,21 @@ namespace Glazman.Tank
 			}
 		}
 
-		
+		protected override void DestroyInternal()
+		{
+			if (_gameObject != null)
+			{
+				GameObject.Destroy(_gameObject);
+				_gameObject = null;
+				_transform = null;
+				_agentBehaviour = null;
+			}
+		}
+
 		
 
 		/// <summary>Use CharacterController.Move() or SimpleMove()</summary>
-		private bool _simpleMove = false;
+		private bool _simpleMove = true;
 
 		/// <summary>maximum speed we can turn around</summary>
 		private float _turnSpeed = 5.0f;
@@ -157,13 +173,13 @@ namespace Glazman.Tank
 			float sqrAccel = accel * accel;
 			float sqrVelocityDelta = velocityDelta.sqrMagnitude;
 
-//		Debug.Log("  " + Time.time + " ======> DesiredDirection=" + DesiredDirection + "  DesiredSpeed=" + DesiredSpeed + "  desiredVelocity=" + desiredVelocity + "  _velocity=" + _velocity + "  velocityDelta=" + velocityDelta + "   sqrVelocityDelta=" + sqrVelocityDelta + "  accel=" + accel + "  sqrAccel=" + sqrAccel);
+//			Debug.Log("  " + Time.time + " ======> DesiredDirection=" + DesiredDirection + "  DesiredSpeed=" + DesiredSpeed + "  desiredVelocity=" + desiredVelocity + "  _velocity=" + _velocity + "  velocityDelta=" + velocityDelta + "   sqrVelocityDelta=" + sqrVelocityDelta + "  accel=" + accel + "  sqrAccel=" + sqrAccel);
 
 			// limit changes in velocity by our acceleration
 			if (sqrVelocityDelta > sqrAccel)
 			{
 				velocityDelta = velocityDelta.normalized * accel;
-//			Debug.Log(" velocityDelta CLAMPED=" + velocityDelta);
+//				Debug.Log(" velocityDelta CLAMPED=" + velocityDelta);
 			}
 
 			// apply delta
@@ -172,7 +188,7 @@ namespace Glazman.Tank
 			// apply gravity
 			_velocity.y += Physics.gravity.y * deltaTime * 4f;
 
-//		Debug.Log("  new velocity=" + _velocity);
+//			Debug.Log("  new velocity=" + _velocity);
 		}
 
 		private void StepMovement(float deltaTime)

@@ -95,33 +95,30 @@ namespace Glazman.Tank
 			switch (difficulty)
 			{
 				case Difficulty.Easy:
-					worldSeed = WorldGenSeed.SEED_MAZE2;
-					terrainCols = 11;
-					terrainRows = 11;
+					worldSeed = WorldGenSeed.SEED_MAZE1;
+					terrainCols = 7;
+					terrainRows = 7;
 					desiredEnemies = 3;
 					break;
 				
 				case Difficulty.Normal:	
 					worldSeed = WorldGenSeed.SEED_MAZE1;
-					terrainCols = 13;
-					terrainRows = 13;
+					terrainCols = 9;
+					terrainRows = 9;
 					desiredEnemies = 5;
 					break;
 				
 				case Difficulty.Hard:
-					worldSeed = WorldGenSeed.SEED_CAVERN1;
-					terrainCols = 15;
-					terrainRows = 15;
-					desiredEnemies = 10;
+					worldSeed = WorldGenSeed.SEED_MAZE1;
+					terrainCols = 11;
+					terrainRows = 11;
+					desiredEnemies = 20;
 					break;
 
 				default:
 					throw new Exception($"Unhandled difficulty level: {difficulty}");
 			}
 			
-			// center the camera over the terrain
-			Camera.main.transform.position = new Vector3(terrainCols - 1, terrainCols * 2, terrainRows - 1);
-
 			int randomSeed = UnityEngine.Random.Range(0, 9999999);
 			var config = new TerrainGenerator.WorldGenConfig(randomSeed, WorldType.Prim, terrainCols, terrainRows, 
 				new Vector2(TERRAIN_TILE_SIZE, TERRAIN_TILE_SIZE), worldSeed);
@@ -134,6 +131,9 @@ namespace Glazman.Tank
 			terrainGenerator.GenerateWorld();
 			while (!terrainGenerator.IsGenerated)
 				yield return null;
+
+			// center the camera over the terrain
+			Camera.main.transform.position = new Vector3(terrainCols - 1, (terrainCols -1 ) * 4, terrainRows - 1);
 
 			// spawn terrain tiles
 			for ( int yTile = 0; yTile < terrainRows; yTile++ )
