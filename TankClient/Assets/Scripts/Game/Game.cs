@@ -35,6 +35,7 @@ namespace Glazman.Tank
 		private static List<Entity> _enemyEntities = new List<Entity>();
 		private static List<Entity> _terrainEntities = new List<Entity>();
 		private static List<Entity> _propEntities = new List<Entity>();
+		private static List<Entity> _wallEntities = new List<Entity>();
 
 		// TODO: this is a lame way of exposing the current terrain to pathfinding
 		public static TerrainGenerator TerrainGen => _terrainGenerator;
@@ -163,6 +164,25 @@ namespace Glazman.Tank
 				}
 			}
 			
+			// surround the world with invisible walls
+			for (int yTile = -1; yTile <= worldSize; yTile++)
+			{
+				var wall1 = EntityFactory.CreateProp("Blocker", GetTileWorldPosition(-1, yTile), "PropInvisibleWall");
+				_wallEntities.Add(wall1);
+				
+				var wall2 = EntityFactory.CreateProp("Blocker", GetTileWorldPosition(worldSize, yTile), "PropInvisibleWall");
+				_wallEntities.Add(wall2);
+			}
+			
+			for (int xTile = -1; xTile <= worldSize; xTile++)
+			{
+				var wall1 = EntityFactory.CreateProp("Blocker", GetTileWorldPosition(xTile, -1), "PropInvisibleWall");
+				_wallEntities.Add(wall1);
+				
+				var wall2 = EntityFactory.CreateProp("Blocker", GetTileWorldPosition(xTile, worldSize), "PropInvisibleWall");
+				_wallEntities.Add(wall2);
+			}
+
 			// place the player on a road
 			int xPlayer = -1;
 			int yPlayer = -1;
@@ -285,21 +305,26 @@ namespace Glazman.Tank
 		{
 			_terrainGenerator = null;
 			
-			_playerEntity.Destroy();
+			_playerEntity?.Destroy();
 			_playerEntity = null;
 			
 			foreach (var enemy in _enemyEntities)
-				enemy.Destroy();
+				enemy?.Destroy();
 			_enemyEntities.Clear();
 			
 			foreach (var terrain in _terrainEntities)
-				terrain.Destroy();
+				terrain?.Destroy();
 			_terrainEntities.Clear();
 			
 			foreach (var prop in _propEntities)
-				prop.Destroy();
+				prop?.Destroy();
 			_propEntities.Clear();
 			
+			foreach (var wall in _wallEntities)
+				wall?.Destroy();
+			_wallEntities.Clear();
+			
+			_gameState = GameState.MainMenu;
 			Utilities.LoadScene(SceneName.MainMenu);
 		}
 	}
