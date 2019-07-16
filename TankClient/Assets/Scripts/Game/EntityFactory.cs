@@ -8,8 +8,9 @@ namespace Glazman.Tank
 		{
 			var agent = new AgentModule(name, "AgentController", worldPosition);
 			
-			var tankModel = new PrefabModule<ColorizableBehaviour>("TankModel");
+			var tankModel = new PrefabModule<TankModelBehaviour>("TankModel");
 			tankModel.component.SetColor(Color.green);
+			tankModel.component.SetAgent(agent);
 
 			var userInput = new UserAgentModule();
 			
@@ -19,8 +20,10 @@ namespace Glazman.Tank
 		public static Entity CreateNpcTank(string name, Vector3 worldPosition)
 		{
 			var agent = new AgentModule(name, "AgentController", worldPosition);
-			var tankModel = new PrefabModule<ColorizableBehaviour>("TankModel");
+			
+			var tankModel = new PrefabModule<TankModelBehaviour>("TankModel");
 			tankModel.component.SetColor(Color.red);
+			tankModel.component.SetAgent(agent);
 			
 			return new Entity(agent, tankModel);
 		}

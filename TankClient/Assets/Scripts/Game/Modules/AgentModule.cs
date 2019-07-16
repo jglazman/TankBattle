@@ -1,4 +1,10 @@
-﻿using System;
+﻿/**
+ * A simple CharacterController.
+ *
+ * Copyright (C) 2016 Jeremy Glazman.
+ */
+
+using System;
 using UnityEngine;
 
 namespace Glazman.Tank
@@ -230,10 +236,6 @@ namespace Glazman.Tank
 				if (_velocity.y < 0)
 					_velocity.y = 0;
 			}
-
-			//Vector3 xz = new Vector3( _velocity.x, 0f, _velocity.z ).normalized;
-			//if ( Physics.Raycast( Transform.position, xz, ( MyAgent.Collider as SphereCollider ).radius, _layerMask ) )
-			//	_velocity -= xz.normalized;
 		}
 	}
 }
