@@ -27,7 +27,7 @@ namespace Glazman.Tank
 	public static class Game
 	{
 		// the size of terrain tiles in world units
-		private const int TERRAIN_TILE_SIZE = 2;
+		private const float TERRAIN_TILE_SIZE = 1f;
 		
 		private static GameState _gameState;
 		private static Entity _playerEntity;
@@ -92,7 +92,7 @@ namespace Glazman.Tank
 		
 		private static IEnumerator InitializeLevel(Difficulty difficulty)
 		{
-			int terrainCols, terrainRows, desiredEnemies;
+			int worldSize, desiredEnemies;
 
 			// generate terrain data
 			WorldTileConfig[,] worldSeed;
@@ -100,22 +100,19 @@ namespace Glazman.Tank
 			{
 				case Difficulty.Easy:
 					worldSeed = WorldGenSeed.SEED_MAZE1;
-					terrainCols = 7;
-					terrainRows = 7;
+					worldSize = 7;
 					desiredEnemies = 3;
 					break;
 				
 				case Difficulty.Normal:	
 					worldSeed = WorldGenSeed.SEED_MAZE1;
-					terrainCols = 9;
-					terrainRows = 9;
+					worldSize = 9;
 					desiredEnemies = 5;
 					break;
 				
 				case Difficulty.Hard:
 					worldSeed = WorldGenSeed.SEED_MAZE1;
-					terrainCols = 11;
-					terrainRows = 11;
+					worldSize = 11;
 					desiredEnemies = 20;
 					break;
 
@@ -124,7 +121,7 @@ namespace Glazman.Tank
 			}
 			
 			int randomSeed = UnityEngine.Random.Range(0, 9999999);
-			var config = new TerrainGenerator.WorldGenConfig(randomSeed, WorldType.Prim, terrainCols, terrainRows, 
+			var config = new TerrainGenerator.WorldGenConfig(randomSeed, WorldType.Prim, worldSize, worldSize, 
 				new Vector2(TERRAIN_TILE_SIZE, TERRAIN_TILE_SIZE), worldSeed);
 			
 			_terrainGenerator = new TerrainGenerator();
@@ -137,12 +134,16 @@ namespace Glazman.Tank
 				yield return null;
 
 			// center the camera over the terrain
-			Camera.main.transform.position = new Vector3(terrainCols - 1, (terrainCols -1 ) * 4, terrainRows - 1);
+			Camera.main.transform.position = new Vector3(
+				(worldSize - 1) * (TERRAIN_TILE_SIZE * 0.5f), 
+				(worldSize - 1) * (TERRAIN_TILE_SIZE * 2f), 
+				(worldSize - 1) * (TERRAIN_TILE_SIZE * 0.5f)
+			);
 
 			// spawn terrain tiles
-			for ( int yTile = 0; yTile < terrainRows; yTile++ )
+			for ( int yTile = 0; yTile < worldSize; yTile++ )
 			{
-				for ( int xTile = 0; xTile < terrainCols; xTile++ )
+				for ( int xTile = 0; xTile < worldSize; xTile++ )
 				{
 					bool isRoadTile = _terrainGenerator.GetTile(xTile, yTile).IsOpen();
 					var tileType = GetTerrainType(_terrainGenerator, xTile, yTile);
@@ -166,9 +167,9 @@ namespace Glazman.Tank
 			int xPlayer = -1;
 			int yPlayer = -1;
 
-			for ( int yTile = 0; yTile < terrainRows; yTile++ )
+			for ( int yTile = 0; yTile < worldSize; yTile++ )
 			{
-				for (int xTile = 0; xTile < terrainCols; xTile++)
+				for (int xTile = 0; xTile < worldSize; xTile++)
 				{
 					int index = _terrainGenerator.GetLinearIndex(xTile, yTile);
 					var terrain = _terrainEntities[index].GetModule<PrefabModule<TerrainBehaviour>>(ModuleType.Prefab);
@@ -186,9 +187,9 @@ namespace Glazman.Tank
 			}
 
 			// iterate backwards over the terrain to place enemies preferentially far from the player
-			for (int yTile = terrainRows - 1; yTile >= 0; yTile--)
+			for (int yTile = worldSize - 1; yTile >= 0; yTile--)
 			{
-				for (int xTile = terrainCols - 1; xTile >= 0; xTile--)
+				for (int xTile = worldSize - 1; xTile >= 0; xTile--)
 				{
 					int index = _terrainGenerator.GetLinearIndex(xTile, yTile);
 					var terrain = _terrainEntities[index].GetModule<PrefabModule<TerrainBehaviour>>(ModuleType.Prefab);
