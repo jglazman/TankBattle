@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 7655684402692492929}
   - component: {fileID: 3837038417976173881}
   - component: {fileID: 971623639957207461}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Turret
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -103,7 +103,7 @@ GameObject:
   - component: {fileID: 5610177388640693756}
   - component: {fileID: 9158245037859587147}
   - component: {fileID: 8107162805725383423}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Body
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -193,7 +193,7 @@ GameObject:
   - component: {fileID: 1073695916679893143}
   - component: {fileID: 7850374487791804391}
   - component: {fileID: 5766667438713411908}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Barrel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -269,7 +269,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6070253791657842462}
   - component: {fileID: 770662282911734874}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: TankModel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -318,7 +318,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7429120748145171614}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Scale
   m_TagString: Untagged
   m_Icon: {fileID: 0}

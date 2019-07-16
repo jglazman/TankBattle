@@ -70,6 +70,15 @@ namespace Glazman.Tank
 //		{
 //			SetTileType(_tileType);
 //		}
+
+		public int X;
+		public int Y;
+
+		public void SetTileCoordinates(int x, int y)
+		{
+			X = x;
+			Y = y;
+		}
 		
 		public void SetTileSize(float width, float height)
 		{

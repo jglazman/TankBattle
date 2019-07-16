@@ -14,7 +14,9 @@ namespace Glazman.Tank
 
 			var userInput = new UserAgentModule();
 			
-			return new Entity(agent, tankModel, userInput);
+			var pathfinding = new PathfindingModule();
+			
+			return new Entity(agent, tankModel, userInput, pathfinding);
 		}
 		
 		public static Entity CreateNpcTank(string name, Vector3 worldPosition)
@@ -28,15 +30,18 @@ namespace Glazman.Tank
 			return new Entity(agent, tankModel);
 		}
 
-		public static Entity CreateTerrain(string name, Vector3 worldPos, TileType tileType, bool isOpen, float size)
+		public static Entity CreateTerrain(string name, Vector3 worldPos, TileType tileType, bool isOpen, float size, int x, int y)
 		{
 			var transform = new TransformModule(name, worldPos);
 			
-			var terrain = new PrefabModule<TerrainBehaviour>("TerrainTile");
-			terrain.component.SetTileSize(size, size);
-			terrain.component.SetTileType(tileType, isOpen);
+			var tile = new PrefabModule<TerrainBehaviour>("TerrainTile");
+			tile.component.SetTileSize(size, size);
+			tile.component.SetTileType(tileType, isOpen);
+			tile.component.SetTileCoordinates(x, y);
 			
-			return new Entity(transform, terrain);
+			var terrain = new TerrainModule(x, y, size);
+			
+			return new Entity(transform, tile, terrain);
 		}
 
 		public static Entity CreateProp(string name, Vector3 worldPos, string prefabName)

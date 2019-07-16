@@ -910,7 +910,7 @@ public class TerrainGenerator
 
 	public int GetLinearIndex( int col, int row )
 	{
-		return ( col * _numCols ) + row;
+		return (row * _numRows) + col;
 	}
 
 	private Vector3 GetTilePos( int col, int row )

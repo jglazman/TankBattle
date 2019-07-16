@@ -12,7 +12,9 @@ namespace Glazman.Tank
 		Agent		= 2,
 		Prefab		= 4,
 		UserAgent	= 8,
-		NpcAgent	= 16
+		NpcAgent	= 16,
+		Pathfinding	= 32,
+		Terrain		= 64
 	}
 
 	public static class ModulePriority

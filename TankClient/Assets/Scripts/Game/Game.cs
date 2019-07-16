@@ -31,10 +31,14 @@ namespace Glazman.Tank
 		
 		private static GameState _gameState;
 		private static Entity _playerEntity;
+		private static TerrainGenerator _terrainGenerator;
 		private static List<Entity> _enemyEntities = new List<Entity>();
 		private static List<Entity> _terrainEntities = new List<Entity>();
 		private static List<Entity> _propEntities = new List<Entity>();
 
+		// TODO: this is a lame way of exposing the current terrain to pathfinding
+		public static TerrainGenerator TerrainGen => _terrainGenerator;
+		public static List<Entity> TerrainEntities => _terrainEntities;
 
 		private static UserInput _userInput;
 		
@@ -123,13 +127,13 @@ namespace Glazman.Tank
 			var config = new TerrainGenerator.WorldGenConfig(randomSeed, WorldType.Prim, terrainCols, terrainRows, 
 				new Vector2(TERRAIN_TILE_SIZE, TERRAIN_TILE_SIZE), worldSeed);
 			
-			var terrainGenerator = new TerrainGenerator();
-			terrainGenerator.InitWorldFromConfig(config);
-			while (!terrainGenerator.IsInitialized)
+			_terrainGenerator = new TerrainGenerator();
+			_terrainGenerator.InitWorldFromConfig(config);
+			while (!_terrainGenerator.IsInitialized)
 				yield return null;
 
-			terrainGenerator.GenerateWorld();
-			while (!terrainGenerator.IsGenerated)
+			_terrainGenerator.GenerateWorld();
+			while (!_terrainGenerator.IsGenerated)
 				yield return null;
 
 			// center the camera over the terrain
@@ -140,19 +144,13 @@ namespace Glazman.Tank
 			{
 				for ( int xTile = 0; xTile < terrainCols; xTile++ )
 				{
-					bool isRoadTile = terrainGenerator.GetTile(xTile, yTile).IsOpen();
-					var tileType = GetTerrainType(terrainGenerator, xTile, yTile);
+					bool isRoadTile = _terrainGenerator.GetTile(xTile, yTile).IsOpen();
+					var tileType = GetTerrainType(_terrainGenerator, xTile, yTile);
 					var worldPos = GetTileWorldPosition(xTile, yTile);
-					var terrain = EntityFactory.CreateTerrain($"Terrain_{xTile}_{yTile}", worldPos, tileType, isRoadTile, TERRAIN_TILE_SIZE);
+					var terrain = EntityFactory.CreateTerrain($"Terrain_{xTile}_{yTile}", worldPos, tileType, isRoadTile, TERRAIN_TILE_SIZE, xTile, yTile);
 					_terrainEntities.Add(terrain);
 
-					if (isRoadTile)
-					{
-						// randomly spawn the player on a road tile
-						if (_playerEntity == null && UnityEngine.Random.value > 0.75f)
-							_playerEntity = EntityFactory.CreatePlayerTank("Player", worldPos);
-					}
-					else
+					if (!isRoadTile)
 					{
 						// randomly spawn obstacles
 						if (UnityEngine.Random.value > 0.5f)
@@ -164,25 +162,27 @@ namespace Glazman.Tank
 				}
 			}
 			
-			// lame fallback in case beat the odds and never placer the player
-			if (_playerEntity == null)
-			{
-				for ( int yTile = 0; yTile < terrainRows; yTile++ )
-				{
-					for (int xTile = 0; xTile < terrainCols; xTile++)
-					{
-						int index = terrainGenerator.GetLinearIndex(xTile, yTile);
-						var terrain = _terrainEntities[index].GetModule<PrefabModule<TerrainBehaviour>>(ModuleType.Prefab);
-						if (terrain.component.isOpen)
-						{
-							_playerEntity = EntityFactory.CreatePlayerTank("Player", GetTileWorldPosition(xTile, yTile));
-							break;
-						}
-					}
+			// place the player on a road
+			int xPlayer = -1;
+			int yPlayer = -1;
 
-					if (_playerEntity != null)
+			for ( int yTile = 0; yTile < terrainRows; yTile++ )
+			{
+				for (int xTile = 0; xTile < terrainCols; xTile++)
+				{
+					int index = _terrainGenerator.GetLinearIndex(xTile, yTile);
+					var terrain = _terrainEntities[index].GetModule<PrefabModule<TerrainBehaviour>>(ModuleType.Prefab);
+					if (terrain.component.isOpen)
+					{
+						_playerEntity = EntityFactory.CreatePlayerTank("Player", GetTileWorldPosition(xTile, yTile));
+						xPlayer = xTile;
+						yPlayer = yTile;
 						break;
+					}
 				}
+
+				if (_playerEntity != null)
+					break;
 			}
 
 			// iterate backwards over the terrain to place enemies preferentially far from the player
@@ -190,9 +190,13 @@ namespace Glazman.Tank
 			{
 				for (int xTile = terrainCols - 1; xTile >= 0; xTile--)
 				{
-					int index = terrainGenerator.GetLinearIndex(xTile, yTile);
+					int index = _terrainGenerator.GetLinearIndex(xTile, yTile);
 					var terrain = _terrainEntities[index].GetModule<PrefabModule<TerrainBehaviour>>(ModuleType.Prefab);
-					if (terrain.component.isOpen && _enemyEntities.Count < desiredEnemies && UnityEngine.Random.value > 0.8f)
+					
+					if (terrain.component.isOpen &&
+					    !(xTile == xPlayer && yTile == yPlayer) &&
+					    _enemyEntities.Count < desiredEnemies &&
+					    UnityEngine.Random.value > 0.8f)
 					{
 						var enemy = EntityFactory.CreateNpcTank($"Enemy_{_enemyEntities.Count}", GetTileWorldPosition(xTile, yTile));
 						_enemyEntities.Add(enemy);
@@ -201,7 +205,7 @@ namespace Glazman.Tank
 			}
 		}
 
-		private static Vector3 GetTileWorldPosition(int col, int row)
+		public static Vector3 GetTileWorldPosition(int col, int row)
 		{
 			return new Vector3(col * TERRAIN_TILE_SIZE, 0f, row * TERRAIN_TILE_SIZE);
 		}
@@ -278,6 +282,8 @@ namespace Glazman.Tank
 
 		private static void EndGame()
 		{
+			_terrainGenerator = null;
+			
 			_playerEntity.Destroy();
 			_playerEntity = null;
 			

@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 8311678229350709968}
   - component: {fileID: 7563154624986401590}
   - component: {fileID: 7905005983047446778}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: TerrainTile
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -71,7 +71,7 @@ GameObject:
   - component: {fileID: 4148783394183315451}
   - component: {fileID: 4878401431895725659}
   - component: {fileID: 4707279704184981509}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Quad
   m_TagString: Untagged
   m_Icon: {fileID: 0}
