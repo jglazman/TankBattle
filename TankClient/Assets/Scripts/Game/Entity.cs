@@ -9,6 +9,9 @@ namespace Glazman.Tank
 	{
 		private List<Module> _modules = new List<Module>(4);
 
+		private bool _isDestroyed = false;
+		public bool IsDestroyed => _isDestroyed;
+		
 		
 		public Entity() { }
 
@@ -31,6 +34,8 @@ namespace Glazman.Tank
 
 				_modules.Clear();
 			}
+
+			_isDestroyed = true;
 		}
 
 		/// <summary>

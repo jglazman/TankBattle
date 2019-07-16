@@ -27,7 +27,9 @@ namespace Glazman.Tank
 			LookUp,
 			LookDown,
 			LookLeft,
-			LookRight
+			LookRight,
+			
+			Shoot
 		}
 
 		public MessageType type;

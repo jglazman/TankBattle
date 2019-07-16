@@ -534,6 +534,7 @@ MonoBehaviour:
   _broadcastOnClick: 1
   _broadcastWhilePressed: 0
   _matchHitboxToSprite: 0
+  _listenToKeyBindings: 0
 --- !u!114 &841171849
 MonoBehaviour:
   m_ObjectHideFlags: 0

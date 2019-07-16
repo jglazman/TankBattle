@@ -29,6 +29,7 @@ namespace Glazman.Tank
 			_transform.position = worldPosition;
 		}
 
+
 		// our cached transform
 		protected Transform _transform;
 		public Transform transform => _transform;
@@ -36,6 +37,11 @@ namespace Glazman.Tank
 		protected GameObject _gameObject;
 		public GameObject gameObject => _gameObject;
 
+		protected override void InitializeInternal()
+		{
+			var eb = _gameObject.AddComponent<EntityBehaviour>();
+			eb.SetEntity(this.entity);
+		}
 
 		protected override void DestroyInternal()
 		{

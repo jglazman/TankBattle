@@ -235,7 +235,7 @@ namespace Glazman.Tank
 					Debug.DrawLine(_transform.transform.position + Vector3.up, _debugGoal + Vector3.up, Color.red);
 				}
 
-				if (Input.GetKeyDown(KeyCode.Space))
+				if (Input.GetKeyDown(KeyCode.N))
 				{
 					_debugPath.Clear();
 					_debugNext = true;

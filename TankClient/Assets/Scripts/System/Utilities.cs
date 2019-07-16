@@ -32,5 +32,15 @@ namespace Glazman.Tank
 			
 			return fullName;
 		}
+
+		public static GameObject GetRootGameObject(GameObject go)
+		{
+			Transform t = go.transform;
+
+			while (t.parent != null)
+				t = t.parent;
+			
+			return t.gameObject;
+		}
 	}
 }

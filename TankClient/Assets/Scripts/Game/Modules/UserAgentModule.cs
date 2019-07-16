@@ -41,7 +41,7 @@ namespace Glazman.Tank
 			
 			_agent.SetDesiredDirection(_moving);
 			_agent.SetDesiredFacing(_facing);
-			_agent.SetDesiredSpeed(_speed * 2f);
+			_agent.SetDesiredSpeed(_speed * GameConfig.TANK_SPEED);
 		}
 
 		public override void LateUpdate(float deltaTime)
@@ -93,6 +93,12 @@ namespace Glazman.Tank
 
 				case UIMessage.MessageType.LookRight:
 					_facing = 90f;
+					break;
+				
+				case UIMessage.MessageType.Shoot:
+					var pos = _agent.transform.position + (Vector3.up * 0.5f) + (_agent.transform.forward * 0.3f);
+					var vel = _agent.transform.forward * GameConfig.BULLET_SPEED;
+					var bullet = EntityFactory.CreateBullet("Bullet", "Bullet", pos, vel);
 					break;
 			}
 		}

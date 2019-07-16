@@ -22,15 +22,28 @@ namespace Glazman.Tank
 			{ KeyCode.RightArrow, UIMessage.Create(UIMessage.MessageType.LookRight) },
 		};
 
+		private static Dictionary<KeyCode, UIMessage> KeyDownBindings = new Dictionary<KeyCode, UIMessage>
+		{
+			{ KeyCode.Space, UIMessage.Create(UIMessage.MessageType.Shoot) }
+		};
+		
 		private KeyCode[] _keys;	// minor optimization, because we iterate over this every frame
+		private KeyCode[] _keysDown;
 
 		public UserInput()
 		{
 			_keys = KeyBindings.Keys.ToArray();
+			_keysDown = KeyDownBindings.Keys.ToArray();
 		}
 		
 		public override void Update(float deltaTime)
 		{
+			for (int i = 0; i < _keysDown.Length; i++)
+			{
+				if (Input.GetKeyDown(_keysDown[i]))
+					GameUI.BroadcastMessage(KeyDownBindings[_keysDown[i]]);
+			}
+			
 			for (int i = 0; i < _keys.Length; i++)
 			{
 				if (Input.GetKey(_keys[i]))

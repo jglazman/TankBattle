@@ -10,7 +10,6 @@ GameObject:
   m_Component:
   - component: {fileID: 8809835032488336966}
   - component: {fileID: 8809835032488336969}
-  - component: {fileID: 8809835032488336968}
   - component: {fileID: 8809835032488336971}
   m_Layer: 0
   m_Name: AgentController
@@ -45,21 +44,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3eab315b5f6ce4bf7aa484978ee20d56, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _triggerCollider: {fileID: 8809835032488336968}
+  _triggerCollider: {fileID: 0}
   _controller: {fileID: 8809835032488336971}
---- !u!135 &8809835032488336968
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8809835032488336970}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 1
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 0.3
-  m_Center: {x: 0, y: 0.3, z: 0}
 --- !u!143 &8809835032488336971
 CharacterController:
   m_ObjectHideFlags: 0

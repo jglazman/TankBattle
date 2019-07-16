@@ -44,12 +44,22 @@ namespace Glazman.Tank
 			return new Entity(transform, tile, terrain);
 		}
 
-		public static Entity CreateProp(string name, Vector3 worldPos, string prefabName)
+		public static Entity CreateProp(string name, string prefabName, Vector3 worldPos)
 		{
 			var transform = new TransformModule(name, worldPos);
 			var prop = new PrefabModule(prefabName);
 			
 			return new Entity(transform, prop);
+		}
+
+		public static Entity CreateBullet(string name, string prefabName, Vector3 worldPos, Vector3 velocity)
+		{
+			var transform = new TransformModule(name, worldPos);
+			var collision = new CollisionModule();
+			var prop = new PrefabModule(prefabName);
+			var bullet = new BulletModule(velocity);
+			
+			return new Entity(transform, prop, collision, bullet);
 		}
 	}
 }

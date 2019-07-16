@@ -6,6 +6,18 @@ using UnityEngine.Assertions;
 
 namespace Glazman.Tank
 {
+	public static class GameConfig
+	{
+		// the size of terrain tiles in world units
+		public const float TERRAIN_TILE_SIZE = 1f;
+
+		// the speed of a tank
+		public const float TANK_SPEED = 2f;
+		
+		// the speed of projectiles
+		public const float BULLET_SPEED = 3f;
+	}
+	
 	public enum GameState
 	{
 		Bootstrap,
@@ -26,9 +38,6 @@ namespace Glazman.Tank
 	/// </summary>
 	public static class Game
 	{
-		// the size of terrain tiles in world units
-		private const float TERRAIN_TILE_SIZE = 1f;
-		
 		private static GameState _gameState;
 		private static Entity _playerEntity;
 		private static TerrainGenerator _terrainGenerator;
@@ -94,6 +103,7 @@ namespace Glazman.Tank
 		private static IEnumerator InitializeLevel(Difficulty difficulty)
 		{
 			int worldSize, desiredEnemies;
+			float tileSize = GameConfig.TERRAIN_TILE_SIZE;
 
 			// generate terrain data
 			WorldTileConfig[,] worldSeed;
@@ -123,7 +133,7 @@ namespace Glazman.Tank
 			
 			int randomSeed = UnityEngine.Random.Range(0, 9999999);
 			var config = new TerrainGenerator.WorldGenConfig(randomSeed, WorldType.Prim, worldSize, worldSize, 
-				new Vector2(TERRAIN_TILE_SIZE, TERRAIN_TILE_SIZE), worldSeed);
+				new Vector2(tileSize, tileSize), worldSeed);
 			
 			_terrainGenerator = new TerrainGenerator();
 			_terrainGenerator.InitWorldFromConfig(config);
@@ -136,9 +146,9 @@ namespace Glazman.Tank
 
 			// center the camera over the terrain
 			Camera.main.transform.position = new Vector3(
-				(worldSize - 1) * (TERRAIN_TILE_SIZE * 0.5f), 
-				(worldSize - 1) * (TERRAIN_TILE_SIZE * 2f), 
-				(worldSize - 1) * (TERRAIN_TILE_SIZE * 0.5f)
+				(worldSize - 1) * (tileSize * 0.5f), 
+				(worldSize - 1) * (tileSize * 2f), 
+				(worldSize - 1) * (tileSize * 0.5f)
 			);
 
 			// spawn terrain tiles
@@ -149,7 +159,7 @@ namespace Glazman.Tank
 					bool isRoadTile = _terrainGenerator.GetTile(xTile, yTile).IsOpen();
 					var tileType = GetTerrainType(_terrainGenerator, xTile, yTile);
 					var worldPos = GetTileWorldPosition(xTile, yTile);
-					var terrain = EntityFactory.CreateTerrain($"Terrain_{xTile}_{yTile}", worldPos, tileType, isRoadTile, TERRAIN_TILE_SIZE, xTile, yTile);
+					var terrain = EntityFactory.CreateTerrain($"Terrain_{xTile}_{yTile}", worldPos, tileType, isRoadTile, tileSize, xTile, yTile);
 					_terrainEntities.Add(terrain);
 
 					if (!isRoadTile)
@@ -157,7 +167,7 @@ namespace Glazman.Tank
 						// randomly spawn obstacles
 						if (UnityEngine.Random.value > 0.5f)
 						{
-							var prop = EntityFactory.CreateProp($"Prop_Tree_{_propEntities.Count}", worldPos, "PropTree");
+							var prop = EntityFactory.CreateProp($"Prop_Tree_{_propEntities.Count}", "PropTree", worldPos);
 							_propEntities.Add(prop);
 						}
 					}
@@ -167,19 +177,19 @@ namespace Glazman.Tank
 			// surround the world with invisible walls
 			for (int yTile = -1; yTile <= worldSize; yTile++)
 			{
-				var wall1 = EntityFactory.CreateProp("Blocker", GetTileWorldPosition(-1, yTile), "PropInvisibleWall");
+				var wall1 = EntityFactory.CreateProp("Blocker", "PropInvisibleWall", GetTileWorldPosition(-1, yTile));
 				_wallEntities.Add(wall1);
 				
-				var wall2 = EntityFactory.CreateProp("Blocker", GetTileWorldPosition(worldSize, yTile), "PropInvisibleWall");
+				var wall2 = EntityFactory.CreateProp("Blocker", "PropInvisibleWall", GetTileWorldPosition(worldSize, yTile));
 				_wallEntities.Add(wall2);
 			}
 			
 			for (int xTile = -1; xTile <= worldSize; xTile++)
 			{
-				var wall1 = EntityFactory.CreateProp("Blocker", GetTileWorldPosition(xTile, -1), "PropInvisibleWall");
+				var wall1 = EntityFactory.CreateProp("Blocker", "PropInvisibleWall", GetTileWorldPosition(xTile, -1));
 				_wallEntities.Add(wall1);
 				
-				var wall2 = EntityFactory.CreateProp("Blocker", GetTileWorldPosition(xTile, worldSize), "PropInvisibleWall");
+				var wall2 = EntityFactory.CreateProp("Blocker", "PropInvisibleWall", GetTileWorldPosition(xTile, worldSize));
 				_wallEntities.Add(wall2);
 			}
 
@@ -228,7 +238,7 @@ namespace Glazman.Tank
 
 		public static Vector3 GetTileWorldPosition(int col, int row)
 		{
-			return new Vector3(col * TERRAIN_TILE_SIZE, 0f, row * TERRAIN_TILE_SIZE);
+			return new Vector3(col * GameConfig.TERRAIN_TILE_SIZE, 0f, row * GameConfig.TERRAIN_TILE_SIZE);
 		}
 		
 		/// <summary>Super brute-force road tile sequencer.</summary>

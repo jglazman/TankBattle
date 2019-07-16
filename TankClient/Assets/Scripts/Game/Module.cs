@@ -14,7 +14,9 @@ namespace Glazman.Tank
 		UserAgent	= 8,
 		NpcAgent	= 16,
 		Pathfinding	= 32,
-		Terrain		= 64
+		Terrain		= 64,
+		Bullet		= 128,
+		Collision	= 256
 	}
 
 	public static class ModulePriority
@@ -23,6 +25,7 @@ namespace Glazman.Tank
 		public const int Default		= 0;
 		public const int UserAgent		= 10;
 		public const int Agent 			= 11;
+		public const int Bullet			= 20;
 	}
 
 	public abstract class Module : UnityBehaviour
@@ -61,6 +64,7 @@ namespace Glazman.Tank
 		/// </summary>
 		public void Destroy()
 		{
+			UnityWrapper.Unregister(this);
 			DestroyInternal();
 			_myEntity = null;
 		}
