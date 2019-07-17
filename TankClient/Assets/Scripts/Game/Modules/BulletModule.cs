@@ -11,7 +11,7 @@ namespace Glazman.Tank
 
 		protected override ModuleType ModuleType { get { return ModuleType.Bullet; } }
 
-		public override ModuleType[] Dependencies { get { return new ModuleType[] { ModuleType.Transform, ModuleType.Collision }; } }
+		public override ModuleType[] Dependencies { get { return new[] { ModuleType.Transform, ModuleType.Collision }; } }
 
 		
 		private TransformModule _transform;
@@ -34,7 +34,6 @@ namespace Glazman.Tank
 			{
 				(dependency as CollisionModule).collision.SetTriggerCallback(OnTrigger);
 			}
-
 		}
 
 		public override void Update(float deltaTime)
@@ -52,7 +51,7 @@ namespace Glazman.Tank
 		{
 			// we are destroyed if we hit anything
 			// TODO: VFX?
-			this.entity.Destroy();
+			this.entity?.Destroy();
 		}
 	}
 

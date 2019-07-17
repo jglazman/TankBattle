@@ -167,7 +167,7 @@ namespace Glazman.Tank
 						// randomly spawn obstacles
 						if (UnityEngine.Random.value > 0.5f)
 						{
-							var prop = EntityFactory.CreateProp($"Prop_Tree_{_propEntities.Count}", "PropTree", worldPos);
+							var prop = EntityFactory.CreateDestructible($"Prop_Tree_{_propEntities.Count}", "PropTree", worldPos, 3);
 							_propEntities.Add(prop);
 						}
 					}

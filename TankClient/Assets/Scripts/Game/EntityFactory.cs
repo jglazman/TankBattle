@@ -52,6 +52,17 @@ namespace Glazman.Tank
 			return new Entity(transform, prop);
 		}
 
+		public static Entity CreateDestructible(string name, string prefabName, Vector3 worldPos, int maxHp)
+		{
+			var transform = new TransformModule(name, worldPos);
+			var collision = new CollisionModule();
+			var prop = new PrefabModule(prefabName);
+			var health = new HealthModule(maxHp, maxHp);
+			var destruct = new DestructibleModule();
+			
+			return new Entity(transform, collision, prop, health, destruct);
+		}
+		
 		public static Entity CreateBullet(string name, string prefabName, Vector3 worldPos, Vector3 velocity)
 		{
 			var transform = new TransformModule(name, worldPos);

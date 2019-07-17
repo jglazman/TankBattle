@@ -7,16 +7,18 @@ namespace Glazman.Tank
 	[System.Flags]
 	public enum ModuleType
 	{
-		Undefined	= 0,
-		Transform	= 1,
-		Agent		= 2,
-		Prefab		= 4,
-		UserAgent	= 8,
-		NpcAgent	= 16,
-		Pathfinding	= 32,
-		Terrain		= 64,
-		Bullet		= 128,
-		Collision	= 256
+		Undefined	 = 0,
+		Transform	 = 1 << 0,
+		Agent		 = 1 << 1,
+		Prefab		 = 1 << 2,
+		UserAgent	 = 1 << 3,
+		NpcAgent	 = 1 << 4,
+		Pathfinding	 = 1 << 5,
+		Terrain		 = 1 << 6,
+		Bullet		 = 1 << 7,
+		Collision	 = 1 << 8,
+		Health		 = 1 << 9,
+		Destructible = 1 << 10
 	}
 
 	public static class ModulePriority
