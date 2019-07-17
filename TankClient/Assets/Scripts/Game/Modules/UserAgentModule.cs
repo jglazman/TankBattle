@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Analytics;
 using UnityEngine.Assertions;
 
 namespace Glazman.Tank
@@ -16,11 +19,21 @@ namespace Glazman.Tank
 		public override ModuleType[] Dependencies { get { return new[] { ModuleType.Agent }; } }
 
 		private AgentModule _agent;
+		private HealthModule _health;
 
 		private float _speed = 0f;
 		private float _facing = 0f;
 		private Vector3 _moving = Vector3.zero;
+		private Team _team;
 
+		private List<Entity> _bullets = new List<Entity>();
+		
+
+		public UserAgentModule(Team team)
+		{
+			_team = team;
+		}
+		
 		protected override void InitializeInternal()
 		{
 			GameUI.ListenForMessages(HandleUIMessage);
@@ -32,8 +45,42 @@ namespace Glazman.Tank
 			{
 				_agent = dependency as AgentModule;
 			}
+			
+			if (dependency.IsModuleType(ModuleType.Health))
+			{
+				_health = dependency as HealthModule;
+				_health.OnHealthChanged += OnHealthChanged;
+			}
+			
+			if (dependency.IsModuleType(ModuleType.Collision))
+			{
+				(dependency as CollisionModule).collision.SetTriggerCallback(OnTrigger);
+			}
 		}
 		
+		
+		private void OnTrigger(CollisionTag tag, Entity otherEntity)
+		{
+			if (tag == CollisionTag.Bullet)
+			{
+				var bullet = otherEntity.GetModule<BulletModule>(ModuleType.Bullet);
+				if (bullet != null && bullet.Team != _team)
+					_health.ChangeHealth(-1);
+				
+				otherEntity.Destroy();
+			}
+		}
+		
+		private void OnHealthChanged(int hp, int delta)
+		{
+			if (hp <= 0)
+			{
+				this.entity.Destroy(); // TODO: boom.
+
+				GameUI.BroadcastMessage(new UIMessage() { type=UIMessage.MessageType.GameOver });
+			}
+		}
+
 		public override void Update(float deltaTime)
 		{
 			if (_agent == null)
@@ -49,8 +96,16 @@ namespace Glazman.Tank
 			// reset for next frame
 			_moving = Vector2.zero;
 		}
-		
-		
+
+		protected override void DestroyInternal()
+		{
+			foreach (var bullet in _bullets)
+				bullet?.Destroy();
+			_bullets.Clear();
+			
+			GameUI.StopListeningForMessages(HandleUIMessage);
+		}
+
 		private void HandleUIMessage(UIMessage message)
 		{
 			switch (message.type)
@@ -96,9 +151,13 @@ namespace Glazman.Tank
 					break;
 				
 				case UIMessage.MessageType.Shoot:
-					var pos = _agent.transform.position + (Vector3.up * 0.5f) + (_agent.transform.forward * 0.3f);
-					var vel = _agent.transform.forward * GameConfig.BULLET_SPEED;
-					var bullet = EntityFactory.CreateBullet("Bullet", "Bullet", pos, vel);
+					if (_agent?.transform != null)
+					{
+						var pos = _agent.transform.position + (Vector3.up * 0.5f) + (_agent.transform.forward * 0.3f);
+						var vel = _agent.transform.forward * GameConfig.BULLET_SPEED;
+						var bullet = EntityFactory.CreateBullet("Bullet", "Bullet", pos, vel, _team);
+						_bullets.Add(bullet);
+					}
 					break;
 			}
 		}

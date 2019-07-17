@@ -13,11 +13,15 @@ namespace Glazman.Tank
 		
 		private TransformModule _transform;
 		private Vector3 _velocity;
+		private Team _team;
+
+		public Team Team => _team;
 		
 		
-		public BulletModule(Vector3 velocity)
+		public BulletModule(Team team, Vector3 velocity)
 		{
 			_velocity = velocity;
+			_team = team;
 		}
 
 		public override void LinkToDependency(Module dependency)
@@ -35,7 +39,8 @@ namespace Glazman.Tank
 
 		public override void Update(float deltaTime)
 		{
-			_transform.transform.position += _velocity * deltaTime;
+			if (_transform != null)
+				_transform.transform.position += _velocity * deltaTime;
 		}
 
 		protected override void DestroyInternal()

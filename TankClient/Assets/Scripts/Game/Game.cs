@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Assertions;
+using Random = System.Random;
 
 namespace Glazman.Tank
 {
@@ -43,6 +44,12 @@ namespace Glazman.Tank
 		Easy = 0,
 		Normal,
 		Hard
+	}
+
+	public enum Team
+	{
+		Red,
+		Blue
 	}
 	
 	/// <summary>
@@ -90,7 +97,8 @@ namespace Glazman.Tank
 					Assert.IsTrue(_gameState == GameState.MainMenu);
 					
 					var difficulty = (Difficulty)message.data[0].DropdownIndex;
-					StartNewGame(difficulty);
+					var numTeams = message.data[1].DropdownIndex + 1;
+					StartNewGame(difficulty, numTeams);
 				} break;
 
 				case UIMessage.MessageType.QuitGame:
@@ -102,17 +110,17 @@ namespace Glazman.Tank
 			}
 		}
 
-		private static void StartNewGame(Difficulty difficulty)
+		private static void StartNewGame(Difficulty difficulty, int numTeams)
 		{
-			Debug.LogWarning($"Start new game!  Difficulty={difficulty}");
+			Debug.LogWarning($"Start new game!  Difficulty={difficulty}  NumTeams={numTeams}");
 
 			_gameState = GameState.GameInProgress;
 			Utilities.LoadScene(SceneName.Game);
 
-			UnityWrapper.Instance.StartCoroutine(InitializeLevel(difficulty));
+			UnityWrapper.Instance.StartCoroutine(InitializeLevel(difficulty, numTeams));
 		}
 		
-		private static IEnumerator InitializeLevel(Difficulty difficulty)
+		private static IEnumerator InitializeLevel(Difficulty difficulty, int numTeams)
 		{
 			int worldSize, desiredEnemies;
 			float tileSize = GameConfig.TERRAIN_TILE_SIZE;
@@ -241,7 +249,11 @@ namespace Glazman.Tank
 					    _enemyEntities.Count < desiredEnemies &&
 					    UnityEngine.Random.value > 0.8f)
 					{
-						var enemy = EntityFactory.CreateNpcTank($"Enemy_{_enemyEntities.Count}", GetTileWorldPosition(xTile, yTile), GameConfig.ENEMY_HIT_POINTS);
+						var team = Team.Red;
+						if (numTeams == 2 && UnityEngine.Random.value > 0.5f)
+							team = Team.Blue;
+						
+						var enemy = EntityFactory.CreateNpcTank($"Enemy_{_enemyEntities.Count}", GetTileWorldPosition(xTile, yTile), GameConfig.ENEMY_HIT_POINTS, team);
 						_enemyEntities.Add(enemy);
 					}
 				}

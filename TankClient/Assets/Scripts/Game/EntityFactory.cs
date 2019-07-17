@@ -7,7 +7,7 @@ namespace Glazman.Tank
 		public static Entity CreatePlayerTank(string name, Vector3 worldPosition, int maxHp)
 		{
 			var agent = new AgentModule(name, "AgentController", worldPosition);
-			var userInput = new UserAgentModule();
+			var userInput = new UserAgentModule(Team.Blue);
 			var health = new HealthModule(maxHp, maxHp);
 			var pathfinding = new PathfindingModule(true);	// only used for debugging
 			
@@ -18,16 +18,16 @@ namespace Glazman.Tank
 			return new Entity(health, agent, tankModel, userInput, pathfinding);
 		}
 		
-		public static Entity CreateNpcTank(string name, Vector3 worldPosition, int maxHp)
+		public static Entity CreateNpcTank(string name, Vector3 worldPosition, int maxHp, Team team)
 		{
 			var agent = new AgentModule(name, "AgentController", worldPosition);
-			var npc = new NpcAgentModule();
+			var npc = new NpcAgentModule(team);
 			var collision = new CollisionModule();
 			var health = new HealthModule(maxHp, maxHp);
 			var pathfinding = new PathfindingModule();
 			
 			var tankModel = new PrefabModule<TankModelBehaviour>("TankModel");
-			tankModel.component.SetColor(Color.red);
+			tankModel.component.SetColor(team == Team.Red ? Color.red : Color.cyan);
 			tankModel.component.SetAgent(agent);
 			
 			return new Entity(health, agent, tankModel, collision, pathfinding, npc);
@@ -65,12 +65,14 @@ namespace Glazman.Tank
 			return new Entity(transform, collision, prop, health, destruct);
 		}
 		
-		public static Entity CreateBullet(string name, string prefabName, Vector3 worldPos, Vector3 velocity)
+		public static Entity CreateBullet(string name, string prefabName, Vector3 worldPos, Vector3 velocity, Team team)
 		{
 			var transform = new TransformModule(name, worldPos);
 			var collision = new CollisionModule();
-			var prop = new PrefabModule(prefabName);
-			var bullet = new BulletModule(velocity);
+			var prop = new PrefabModule<ColorizableBehaviour>(prefabName);
+			var bullet = new BulletModule(team, velocity);
+			
+			prop.component.SetColor(team == Team.Red ? Color.red : Color.cyan);
 			
 			return new Entity(transform, prop, collision, bullet);
 		}

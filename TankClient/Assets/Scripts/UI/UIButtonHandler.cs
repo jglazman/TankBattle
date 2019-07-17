@@ -48,6 +48,12 @@ namespace Glazman.Tank
 			if (_listenToKeyBindings)
 				GameUI.ListenForMessages(HandleUIMessage);
 		}
+
+		private void OnDestroy()
+		{
+			if (_listenToKeyBindings)
+				GameUI.StopListeningForMessages(HandleUIMessage);
+		}
 		
 		private void HandleUIMessage(UIMessage message)
 		{

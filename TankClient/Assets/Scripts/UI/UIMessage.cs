@@ -10,13 +10,14 @@ namespace Glazman.Tank
 	[Serializable]
 	public class UIMessage
 	{
+		// TODO: you can't change the order of these without breaking all UI buttons, because of the way Unity serializes enums
 		public enum MessageType
 		{
 			Undefined = 0,
 			
 			SplashContinue,
 			StartNewGame,
-			PauseGame,
+			GameOver,
 			QuitGame,
 			
 			MoveUp,
@@ -29,7 +30,8 @@ namespace Glazman.Tank
 			LookLeft,
 			LookRight,
 			
-			Shoot
+			Shoot,
+			PauseGame
 		}
 
 		public MessageType type;

@@ -34,7 +34,13 @@ namespace Glazman.Tank
 		private int _pathIndex = -1;
 		private float _timeInState;
 		private float _timeOfAttention;
+		private Team _team;
 
+		public NpcAgentModule(Team team)
+		{
+			_team = team;
+		}
+		
 		protected override void InitializeInternal()
 		{
 			SetState(State.Idle);
@@ -69,7 +75,10 @@ namespace Glazman.Tank
 		{
 			if (tag == CollisionTag.Bullet)
 			{
-				_health.ChangeHealth(-1);
+				var bullet = otherEntity.GetModule<BulletModule>(ModuleType.Bullet);
+				if (bullet != null && bullet.Team != _team)
+					_health.ChangeHealth(-1);
+				
 				otherEntity.Destroy();
 			}
 		}
