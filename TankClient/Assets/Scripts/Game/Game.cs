@@ -12,10 +12,22 @@ namespace Glazman.Tank
 		public const float TERRAIN_TILE_SIZE = 1f;
 
 		// the speed of a tank
-		public const float TANK_SPEED = 2f;
+		public const float PLAYER_TANK_SPEED = 1.5f;
+		
+		// the speed of a tank
+		public const float ENEMY_TANK_SPEED = 1f;
 		
 		// the speed of projectiles
 		public const float BULLET_SPEED = 3f;
+		
+		// max hp for the player
+		public const int PLAYER_HIT_POINTS = 3;
+		
+		// max hp for enemy tanks
+		public const int ENEMY_HIT_POINTS = 1;
+
+		// max hp for destructibles
+		public const int DESTRUCTIBLE_HIT_POINTS = 3;
 	}
 	
 	public enum GameState
@@ -167,7 +179,7 @@ namespace Glazman.Tank
 						// randomly spawn obstacles
 						if (UnityEngine.Random.value > 0.5f)
 						{
-							var prop = EntityFactory.CreateDestructible($"Prop_Tree_{_propEntities.Count}", "PropTree", worldPos, 3);
+							var prop = EntityFactory.CreateDestructible($"Prop_Tree_{_propEntities.Count}", "PropTree", worldPos, GameConfig.DESTRUCTIBLE_HIT_POINTS);
 							_propEntities.Add(prop);
 						}
 					}
@@ -205,7 +217,7 @@ namespace Glazman.Tank
 					var terrain = _terrainEntities[index].GetModule<PrefabModule<TerrainBehaviour>>(ModuleType.Prefab);
 					if (terrain.component.isOpen)
 					{
-						_playerEntity = EntityFactory.CreatePlayerTank("Player", GetTileWorldPosition(xTile, yTile));
+						_playerEntity = EntityFactory.CreatePlayerTank("Player", GetTileWorldPosition(xTile, yTile), GameConfig.PLAYER_HIT_POINTS);
 						xPlayer = xTile;
 						yPlayer = yTile;
 						break;
@@ -229,7 +241,7 @@ namespace Glazman.Tank
 					    _enemyEntities.Count < desiredEnemies &&
 					    UnityEngine.Random.value > 0.8f)
 					{
-						var enemy = EntityFactory.CreateNpcTank($"Enemy_{_enemyEntities.Count}", GetTileWorldPosition(xTile, yTile));
+						var enemy = EntityFactory.CreateNpcTank($"Enemy_{_enemyEntities.Count}", GetTileWorldPosition(xTile, yTile), GameConfig.ENEMY_HIT_POINTS);
 						_enemyEntities.Add(enemy);
 					}
 				}

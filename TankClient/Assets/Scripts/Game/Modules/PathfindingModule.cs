@@ -1,14 +1,12 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using UnityEngine.Assertions;
 
 namespace Glazman.Tank
 {
 	/// <summary>
-	/// Attach an arbitrary prefab to our root Transform.
+	/// Dynamic path generation across the current state of ground tiles.
 	/// </summary>
 	public class PathfindingModule : Module
 	{
@@ -19,11 +17,13 @@ namespace Glazman.Tank
 		public override ModuleType[] Dependencies { get { return new[] { ModuleType.Transform }; } }
 
 		private TransformModule _transform;
+		private bool _isDebug;
 		
 		
-		public PathfindingModule()
+		public PathfindingModule(bool debug=false)
 		{
 			_tileRay = new Ray(Vector3.zero, Vector3.down);
+			_isDebug = debug;
 		}
 
 		public override void LinkToDependency(Module dependency)
@@ -43,9 +43,10 @@ namespace Glazman.Tank
 		/// <summary>
 		/// Find a path from our current position to the given tile coordinates, or return null if a path cannot be found.
 		/// </summary>
-		public List<Vector3> GetPathToTile(TerrainGenerator terrainGen, List<Entity> terrainTiles, int xEnd, int yEnd)
+		public List<Vector3> GetPathToTile(int xEnd, int yEnd)
 		{
-			Assert.IsTrue(terrainGen != null, "Pathfinding requires a TerrainGenerator!");
+			// TODO: public static ;(
+			Assert.IsTrue(Game.TerrainGen != null, "Pathfinding requires a TerrainGenerator!");
 			
 			// find the coordinates of the tile under our feet
 			int xStart, yStart;
@@ -53,11 +54,11 @@ namespace Glazman.Tank
 				return null; // we are off the grid, there is no valid path
 
 			// prepare for A*
-			Node[,] nodes = new Node[terrainGen.NumCols,terrainGen.NumRows];
-			var openNodes = new List<Node>(terrainGen.NumCols*terrainGen.NumRows);
+			Node[,] nodes = new Node[Game.TerrainGen.NumCols,Game.TerrainGen.NumRows];
+			var openNodes = new List<Node>(Game.TerrainGen.NumCols*Game.TerrainGen.NumRows);
 
 			// find the first node
-			var startNode = GetOrCreateNode(terrainGen, terrainTiles, ref nodes, 0, xStart, yStart, xStart, yStart, xEnd, yEnd);
+			var startNode = GetOrCreateNode(ref nodes, 0, xStart, yStart, xStart, yStart, xEnd, yEnd);
 			if (startNode == null || startNode.isBlocked)
 				return null; // no path
 
@@ -84,10 +85,10 @@ namespace Glazman.Tank
 
 				// find adjacent nodes
 				Node[] adjacentNodes = new Node[4];
-				adjacentNodes[0] = GetOrCreateNode(terrainGen, terrainTiles, ref nodes, currentNode.g, currentNode.x, currentNode.y+1, xStart, yStart, xEnd, yEnd);
-				adjacentNodes[1] = GetOrCreateNode(terrainGen, terrainTiles, ref nodes, currentNode.g, currentNode.x, currentNode.y-1, xStart, yStart, xEnd, yEnd);
-				adjacentNodes[2] = GetOrCreateNode(terrainGen, terrainTiles, ref nodes, currentNode.g, currentNode.x+1, currentNode.y, xStart, yStart, xEnd, yEnd);
-				adjacentNodes[3] = GetOrCreateNode(terrainGen, terrainTiles, ref nodes, currentNode.g, currentNode.x-1, currentNode.y, xStart, yStart, xEnd, yEnd);
+				adjacentNodes[0] = GetOrCreateNode(ref nodes, currentNode.g, currentNode.x, currentNode.y+1, xStart, yStart, xEnd, yEnd);
+				adjacentNodes[1] = GetOrCreateNode(ref nodes, currentNode.g, currentNode.x, currentNode.y-1, xStart, yStart, xEnd, yEnd);
+				adjacentNodes[2] = GetOrCreateNode(ref nodes, currentNode.g, currentNode.x+1, currentNode.y, xStart, yStart, xEnd, yEnd);
+				adjacentNodes[3] = GetOrCreateNode(ref nodes, currentNode.g, currentNode.x-1, currentNode.y, xStart, yStart, xEnd, yEnd);
 
 				// open any available adjacent nodes
 				for (int i = 0; i < 4; i++)
@@ -134,16 +135,16 @@ namespace Glazman.Tank
 			return path;
 		}
 
-		private static Node GetOrCreateNode(TerrainGenerator terrainGen, List<Entity> terrainTiles, ref Node[,] nodes, int g, int x, int y, int xStart, int xEnd, int yStart, int yEnd)
+		private static Node GetOrCreateNode(ref Node[,] nodes, int g, int x, int y, int xStart, int xEnd, int yStart, int yEnd)
 		{
-			if (x < 0 || y < 0 || x >= terrainGen.NumCols || y >= terrainGen.NumRows)
+			if (x < 0 || y < 0 || x >= Game.TerrainGen.NumCols || y >= Game.TerrainGen.NumRows)
 				return null;
 			
 			var node = nodes[x,y];
 			if (node == null)
 			{
-				var index = terrainGen.GetLinearIndex(x, y);
-				var tile = terrainTiles[index]?.GetModule<TerrainModule>(ModuleType.Terrain);
+				var index = Game.TerrainGen.GetLinearIndex(x, y);
+				var tile = Game.TerrainEntities[index]?.GetModule<TerrainModule>(ModuleType.Terrain);
 
 				node = new Node() {
 					x = x,
@@ -209,15 +210,15 @@ namespace Glazman.Tank
 		private List<Vector3> _debugPath = new List<Vector3>();
 		private Vector3 _debugGoal;
 		private Color _debugColor;
-		private bool _isDebug;
 		private bool _debugNext;
+		private bool _isDebugActive;
 		
 		public override void Update(float deltaTime)
 		{
-			if (_transform == null)
+			if (!_isDebug || _transform == null)
 				return;
 
-			if (_isDebug)
+			if (_isDebugActive)
 			{
 				if (_debugPath.Count > 0)
 				{
@@ -250,13 +251,13 @@ namespace Glazman.Tank
 
 		private IEnumerator Debug_FindAllPaths()
 		{
-			_isDebug = true;
+			_isDebugActive = true;
 			
 			for (int row = 0; row < Game.TerrainGen.NumRows; row++)
 			{
 				for (int col = 0; col < Game.TerrainGen.NumCols; col++)
 				{
-					var path = GetPathToTile(Game.TerrainGen, Game.TerrainEntities, col, row);
+					var path = GetPathToTile(col, row);
 					_debugGoal = Game.GetTileWorldPosition(col, row);
 
 					yield return null;
@@ -280,7 +281,7 @@ namespace Glazman.Tank
 				}
 			}
 
-			_isDebug = false;
+			_isDebugActive = false;
 		}
 	}
 }

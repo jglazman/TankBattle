@@ -2,9 +2,6 @@
 
 namespace Glazman.Tank
 {
-	/// <summary>
-	/// Attach an arbitrary prefab to our root Transform.
-	/// </summary>
 	public class BulletModule : Module
 	{
 		public override int Priority { get { return ModulePriority.Bullet; } }

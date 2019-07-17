@@ -5,7 +5,7 @@ using UnityEngine.Assertions;
 namespace Glazman.Tank
 {
 	/// <summary>
-	/// Attach an arbitrary prefab to our root Transform.
+	/// User input control over an agent.
 	/// </summary>
 	public class UserAgentModule : Module
 	{
@@ -41,7 +41,7 @@ namespace Glazman.Tank
 			
 			_agent.SetDesiredDirection(_moving);
 			_agent.SetDesiredFacing(_facing);
-			_agent.SetDesiredSpeed(_speed * GameConfig.TANK_SPEED);
+			_agent.SetDesiredSpeed(_speed * GameConfig.PLAYER_TANK_SPEED);
 		}
 
 		public override void LateUpdate(float deltaTime)
