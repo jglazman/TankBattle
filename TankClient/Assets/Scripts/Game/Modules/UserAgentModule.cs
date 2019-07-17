@@ -22,6 +22,7 @@ namespace Glazman.Tank
 		private float _speed = 0f;
 		private float _facing = 0f;
 		private Vector3 _moving = Vector3.zero;
+		private float _cooldown = 0f;
 		private Team _team;
 		
 		public Team Team => _team;
@@ -154,15 +155,25 @@ namespace Glazman.Tank
 					break;
 				
 				case UIMessage.MessageType.Shoot:
-					if (_agent?.transform != null)
-					{
-						var pos = _agent.transform.position + (Vector3.up * 0.5f) + (_agent.transform.forward * 0.3f);
-						var vel = _agent.transform.forward * GameConfig.BULLET_SPEED;
-						var bullet = EntityFactory.CreateBullet("Bullet", "Bullet", pos, vel, _team);
-						_bullets.Add(bullet);
-					}
+					Shoot();
 					break;
 			}
+		}
+
+		private void Shoot()
+		{
+			if (_agent?.transform == null)
+				return;
+
+			if (Time.time < _cooldown)
+				return;
+
+			_cooldown = Time.time + GameConfig.PLAYER_SHOT_COOLDOWN;
+			
+			var pos = _agent.transform.position + (Vector3.up * 0.5f) + (_agent.transform.forward * 0.3f);
+			var vel = _agent.transform.forward * GameConfig.BULLET_SPEED;
+			var bullet = EntityFactory.CreateBullet("Bullet", "Bullet", pos, vel, _team);
+			_bullets.Add(bullet);
 		}
 
 	}

@@ -29,6 +29,9 @@ namespace Glazman.Tank
 
 		// max hp for destructibles
 		public const int DESTRUCTIBLE_HIT_POINTS = 3;
+
+		// how often can the player shoot
+		public const float PLAYER_SHOT_COOLDOWN = 0.35f;
 	}
 	
 	public enum GameState

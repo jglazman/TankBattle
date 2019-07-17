@@ -60,6 +60,7 @@ namespace Glazman.Tank
 
 				case UIMessage.MessageType.LevelCleared:
 				{
+					_parentInProgress.SetActive(false);
 					_parentLevelCleared.SetActive(true);
 				} break;
 			}
