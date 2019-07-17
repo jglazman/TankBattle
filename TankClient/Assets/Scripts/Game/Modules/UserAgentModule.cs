@@ -2,8 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Analytics;
-using UnityEngine.Assertions;
 
 namespace Glazman.Tank
 {
@@ -16,7 +14,7 @@ namespace Glazman.Tank
 
 		protected override ModuleType ModuleType { get { return ModuleType.UserAgent; } }
 
-		public override ModuleType[] Dependencies { get { return new[] { ModuleType.Agent }; } }
+		public override ModuleType[] Dependencies { get { return new[] { ModuleType.Agent, ModuleType.Collision, ModuleType.Health }; } }
 
 		private AgentModule _agent;
 		private HealthModule _health;
@@ -77,7 +75,7 @@ namespace Glazman.Tank
 			{
 				this.entity.Destroy(); // TODO: boom.
 
-				GameUI.BroadcastMessage(new UIMessage() { type=UIMessage.MessageType.GameOver });
+				GameUI.BroadcastMessage(UIMessage.Create(UIMessage.MessageType.GameOver));
 			}
 		}
 

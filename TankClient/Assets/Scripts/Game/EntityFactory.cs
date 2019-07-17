@@ -8,6 +8,7 @@ namespace Glazman.Tank
 		{
 			var agent = new AgentModule(name, "AgentController", worldPosition);
 			var userInput = new UserAgentModule(Team.Blue);
+			var collision = new CollisionModule();
 			var health = new HealthModule(maxHp, maxHp);
 			var pathfinding = new PathfindingModule(true);	// only used for debugging
 			
@@ -15,7 +16,7 @@ namespace Glazman.Tank
 			tankModel.component.SetColor(Color.green);
 			tankModel.component.SetAgent(agent);
 			
-			return new Entity(health, agent, tankModel, userInput, pathfinding);
+			return new Entity(health, agent, tankModel, collision, pathfinding, userInput);
 		}
 		
 		public static Entity CreateNpcTank(string name, Vector3 worldPosition, int maxHp, Team team)

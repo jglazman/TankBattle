@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using Random = System.Random;
 
 namespace Glazman.Tank
 {
@@ -34,17 +35,30 @@ namespace Glazman.Tank
 		private int _pathIndex = -1;
 		private float _timeInState;
 		private float _timeOfAttention;
+		private float _timeUntilNextShot;
 		private Team _team;
+		
+		private List<Entity> _bullets = new List<Entity>();
+		
 
 		public NpcAgentModule(Team team)
 		{
 			_team = team;
+			_timeUntilNextShot = 5f + UnityEngine.Random.value * 10f;
 		}
 		
 		protected override void InitializeInternal()
 		{
 			SetState(State.Idle);
 		}
+		
+		protected override void DestroyInternal()
+		{
+			foreach (var bullet in _bullets)
+				bullet?.Destroy();
+			_bullets.Clear();
+		}
+
 
 		public override void LinkToDependency(Module dependency)
 		{
@@ -112,7 +126,7 @@ namespace Glazman.Tank
 					break;
 			}
 
-			//UpdateTurret();
+			UpdateTurret(deltaTime);
 			
 			_agent.SetDesiredDirection(_direction);
 			_agent.SetDesiredFacing(_facing);
@@ -218,15 +232,23 @@ namespace Glazman.Tank
 
 		private void UpdateAvoidingObstacle(float deltaTime)
 		{
+			// TODO: bounce off, turn around, etc.
 			if (_timeInState > _timeOfAttention)
 				SetState(State.Pathfinding);
 		}
 
-//		private void UpdateTurret()
-//		{
-//			var pos = _agent.transform.position + (Vector3.up * 0.5f) + (_agent.transform.forward * 0.3f);
-//			var vel = _agent.transform.forward * GameConfig.BULLET_SPEED;
-//			var bullet = EntityFactory.CreateBullet("Bullet", "Bullet", pos, vel);
-//		}		
+		private void UpdateTurret(float deltaTime)
+		{
+			_timeUntilNextShot -= deltaTime;
+			if (_timeUntilNextShot > 0f)
+				return;
+
+			_timeUntilNextShot = 1f + UnityEngine.Random.value * 10f;
+			
+			var pos = _agent.transform.position + (Vector3.up * 0.5f) + (_agent.transform.forward * 0.3f);
+			var vel = _agent.transform.forward * GameConfig.BULLET_SPEED;
+			var bullet = EntityFactory.CreateBullet("Bullet", "Bullet", pos, vel, _team);
+			_bullets.Add(bullet);
+		}		
 	}
 }
