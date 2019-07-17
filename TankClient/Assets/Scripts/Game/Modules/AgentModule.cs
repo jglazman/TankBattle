@@ -47,7 +47,7 @@ namespace Glazman.Tank
 
 		public override void FixedUpdate(float fixedDeltaTime)
 		{
-			if (_agentBehaviour == null)
+			if (!_isActive || _agentBehaviour == null)
 				return;
 			
 			StepFacing(fixedDeltaTime);
@@ -70,9 +70,20 @@ namespace Glazman.Tank
 				_gameObject = null;
 				_transform = null;
 				_agentBehaviour = null;
+				_isActive = false;
 			}
 		}
 
+		private bool _isActive = true;
+		public void Disable()
+		{
+			_isActive = false;
+			if (_agentBehaviour != null)
+			{
+				_agentBehaviour.controller.enabled = false;
+				GameObject.Destroy(_agentBehaviour.controller);
+			}
+		}
 		
 
 		/// <summary>Use CharacterController.Move() or SimpleMove()</summary>

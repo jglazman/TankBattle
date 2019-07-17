@@ -37,11 +37,11 @@ namespace Glazman.Tank
 			_hitPoints = newHp;
 			
 			if (didChange)
-				OnHealthChanged?.Invoke(_hitPoints, delta);
+				OnHealthChanged?.Invoke(this.entity, this, delta);
 		}
 
 
-		public delegate void HealthChangedDelegate(int hp, int delta);
+		public delegate void HealthChangedDelegate(Entity e, HealthModule h, int delta);
 
 		public event HealthChangedDelegate OnHealthChanged;
 	}

@@ -23,6 +23,8 @@ namespace Glazman.Tank
 		private float _facing = 0f;
 		private Vector3 _moving = Vector3.zero;
 		private Team _team;
+		
+		public Team Team => _team;
 
 		private List<Entity> _bullets = new List<Entity>();
 		
@@ -69,11 +71,14 @@ namespace Glazman.Tank
 			}
 		}
 		
-		private void OnHealthChanged(int hp, int delta)
+		private void OnHealthChanged(Entity e, HealthModule h, int delta)
 		{
-			if (hp <= 0)
+			GameUI.BroadcastMessage(UIMessage.Create(UIMessage.MessageType.LoseLife, 
+				new UIMessage.Datum() { type=UIMessage.Datum.Type.Int, value=h.HitPoints.ToString() }));
+			
+			if (h.HitPoints <= 0)
 			{
-				this.entity.Destroy(); // TODO: boom.
+				_agent.Disable();
 
 				GameUI.BroadcastMessage(UIMessage.Create(UIMessage.MessageType.GameOver));
 			}

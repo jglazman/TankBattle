@@ -44,7 +44,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3eab315b5f6ce4bf7aa484978ee20d56, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _triggerCollider: {fileID: 0}
   _controller: {fileID: 8809835032488336971}
 --- !u!143 &8809835032488336971
 CharacterController:

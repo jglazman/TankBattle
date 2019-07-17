@@ -46,9 +46,9 @@ namespace Glazman.Tank
 		}
 
 
-		private void OnHealthChanged(int hp, int delta)
+		private void OnHealthChanged(Entity e, HealthModule h, int delta)
 		{
-			_desiredScale = (float)hp / (float)_health.MaxHitPoints;			
+			_desiredScale = (float)h.HitPoints / (float)h.MaxHitPoints;			
 		}
 
 		public override void Update(float deltaTime)

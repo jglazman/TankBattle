@@ -9,6 +9,9 @@ namespace Glazman.Tank
 		[SerializeField] private Renderer[] _renderers;
 		[SerializeField] private Transform _body;
 		[SerializeField] private Transform _turret;
+		[SerializeField] private GameObject _tank;
+		[SerializeField] private GameObject _splat;
+
 
 		private AgentModule _agent;
 		
@@ -16,7 +19,16 @@ namespace Glazman.Tank
 		{
 			_agent = agent;
 		}
-		
+
+		public void SetHealth(HealthModule health)
+		{
+			health.OnHealthChanged += (e, h, delta) =>
+			{
+				if (h.HitPoints <= 0)
+					ShowSplat(true);
+			};
+		}
+
 		public void SetColor(Color color)
 		{
 			foreach (var rend in _renderers)
@@ -27,6 +39,12 @@ namespace Glazman.Tank
 			}
 		}
 
+		public void ShowSplat(bool show)
+		{
+			_tank.SetActive(!show);
+			_splat.SetActive(show);
+		}
+		
 		private void LateUpdate()
 		{
 			if (_agent == null)

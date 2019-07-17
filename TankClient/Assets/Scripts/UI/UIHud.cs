@@ -9,6 +9,8 @@ namespace Glazman.Tank
 		[SerializeField] private GameObject _parentInProgress;
 		[SerializeField] private GameObject _parentPause;
 		[SerializeField] private GameObject _parentGameOver;
+		[SerializeField] private GameObject _parentLevelCleared;
+		[SerializeField] private GameObject[] _parentLives;
 
 
 		private bool _isPaused = false;
@@ -46,6 +48,19 @@ namespace Glazman.Tank
 				case UIMessage.MessageType.QuitGame:
 				{
 					SetPaused(false);
+				} break;
+
+				case UIMessage.MessageType.LoseLife:
+				{
+					for (int i = 0; i < _parentLives.Length; i++)
+					{
+						_parentLives[i].SetActive(i < message.data[0].IntValue);
+					}
+				} break;
+
+				case UIMessage.MessageType.LevelCleared:
+				{
+					_parentLevelCleared.SetActive(true);
 				} break;
 			}
 		}

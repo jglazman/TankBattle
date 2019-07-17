@@ -31,7 +31,9 @@ namespace Glazman.Tank
 			LookRight,
 			
 			Shoot,
-			PauseGame
+			PauseGame,
+			LevelCleared,
+			LoseLife
 		}
 
 		public MessageType type;

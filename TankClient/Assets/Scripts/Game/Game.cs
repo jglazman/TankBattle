@@ -70,6 +70,8 @@ namespace Glazman.Tank
 		public static List<Entity> TerrainEntities => _terrainEntities;
 
 		private static UserInput _userInput;
+
+		private static int _numEnemiesRemaining;
 		
 		public static void Initialize()
 		{
@@ -185,7 +187,7 @@ namespace Glazman.Tank
 					if (!isRoadTile)
 					{
 						// randomly spawn obstacles
-						if (UnityEngine.Random.value > 0.5f)
+						if (UnityEngine.Random.value > 0.75f)
 						{
 							var prop = EntityFactory.CreateDestructible($"Prop_Tree_{_propEntities.Count}", "PropTree", worldPos, GameConfig.DESTRUCTIBLE_HIT_POINTS);
 							_propEntities.Add(prop);
@@ -237,6 +239,7 @@ namespace Glazman.Tank
 			}
 
 			// iterate backwards over the terrain to place enemies preferentially far from the player
+			_numEnemiesRemaining = 0;
 			for (int yTile = worldSize - 1; yTile >= 0; yTile--)
 			{
 				for (int xTile = worldSize - 1; xTile >= 0; xTile--)
@@ -255,10 +258,27 @@ namespace Glazman.Tank
 						
 						var enemy = EntityFactory.CreateNpcTank($"Enemy_{_enemyEntities.Count}", GetTileWorldPosition(xTile, yTile), GameConfig.ENEMY_HIT_POINTS, team);
 						_enemyEntities.Add(enemy);
+
+						if (team != Team.Blue)
+							_numEnemiesRemaining++;
+
+						enemy.GetModule<HealthModule>(ModuleType.Health).OnHealthChanged += (e, h, delta) =>
+						{
+							if (e.GetModule<NpcAgentModule>(ModuleType.NpcAgent).Team == Team.Red && h.HitPoints <= 0)
+							{
+								_numEnemiesRemaining--;
+								if (_numEnemiesRemaining <= 0)
+								{
+									GameUI.BroadcastMessage(UIMessage.Create(UIMessage.MessageType.LevelCleared));
+								}
+							}
+						};
 					}
 				}
 			}
 		}
+		
+		
 
 		public static Vector3 GetTileWorldPosition(int col, int row)
 		{

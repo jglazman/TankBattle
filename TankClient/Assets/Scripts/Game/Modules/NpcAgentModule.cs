@@ -20,7 +20,8 @@ namespace Glazman.Tank
 		{
 			Idle,
 			Pathfinding,
-			AvoidingObstacle
+			AvoidingObstacle,
+			Dead
 		}
 		
 		private AgentModule _agent;
@@ -37,6 +38,8 @@ namespace Glazman.Tank
 		private float _timeOfAttention;
 		private float _timeUntilNextShot;
 		private Team _team;
+
+		public Team Team => _team;
 		
 		private List<Entity> _bullets = new List<Entity>();
 		
@@ -97,16 +100,20 @@ namespace Glazman.Tank
 			}
 		}
 
-		private void OnHealthChanged(int hp, int delta)
+		private void OnHealthChanged(Entity e, HealthModule h, int delta)
 		{
-			if (hp <= 0)
-				this.entity.Destroy();	// TODO: boom.
+			if (h.HitPoints <= 0)
+			{
+//				this.entity.Destroy();	// TODO: boom.
+				
+				SetState(State.Dead);
+			}
 		}
 
 		
 		public override void Update(float deltaTime)
 		{
-			if (_agent == null)
+			if (_agent == null || _state == State.Dead)
 				return;
 
 			_timeInState += deltaTime;
@@ -158,6 +165,8 @@ namespace Glazman.Tank
 
 				case State.Pathfinding:
 				{
+					_timeOfAttention = 5f + UnityEngine.Random.value * 10f;
+					
 					var randomOpenTiles = Game.TerrainEntities.
 						Select(t => t.GetModule<TerrainModule>(ModuleType.Terrain)).
 						Where(t => t.IsOpen()).ToArray();
@@ -182,6 +191,12 @@ namespace Glazman.Tank
 					_timeOfAttention = 1f;
 					_speed = 1f;
 				} break;
+
+				case State.Dead:
+				{
+					if (_agent != null)
+						_agent.Disable();
+				} break;
 			}
 		}
 
@@ -193,6 +208,11 @@ namespace Glazman.Tank
 
 		private void UpdatePathfinding(float deltaTime)
 		{
+			if (_timeInState > _timeOfAttention)
+			{
+				SetState(State.Idle);
+			}
+
 			if (_pathIndex < 0 || _path == null || _pathIndex >= _path.Count)
 			{
 				SetState(State.Idle);

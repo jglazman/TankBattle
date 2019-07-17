@@ -15,6 +15,7 @@ namespace Glazman.Tank
 			var tankModel = new PrefabModule<TankModelBehaviour>("TankModel");
 			tankModel.component.SetColor(Color.green);
 			tankModel.component.SetAgent(agent);
+			tankModel.component.SetHealth(health);
 			
 			return new Entity(health, agent, tankModel, collision, pathfinding, userInput);
 		}
@@ -30,6 +31,7 @@ namespace Glazman.Tank
 			var tankModel = new PrefabModule<TankModelBehaviour>("TankModel");
 			tankModel.component.SetColor(team == Team.Red ? Color.red : Color.cyan);
 			tankModel.component.SetAgent(agent);
+			tankModel.component.SetHealth(health);
 			
 			return new Entity(health, agent, tankModel, collision, pathfinding, npc);
 		}
